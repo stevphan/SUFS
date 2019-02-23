@@ -41,7 +41,7 @@ end
 title Get File Sequence Diagram
 
 User->+CLI: GetFile(name, saveLocation)
-CLI->+Name Node: GetFile(name, size)
+CLI->+Name Node: GetFile(name)
 Name Node->-CLI: DataNode List / BlockID
 
 loop per BlockID
@@ -53,4 +53,24 @@ end
 CLI->CLI: ConcatenateBlocks(blocks)
 CLI->CLI: SaveFile(data, saveLocation)
 CLI->-User: Result
+```
+
+## Data Node Bootstrap Sequence Diagram
+
+![Data Node Bootstrap Sequence Diagram](Data_Node_Bootstrap_Sequence_Diagram.png)
+
+```
+title Data Node Bootstrap Sequence Diagram
+
+Data Node->+Data Node: Initialize()
+Data Node->Data Node: GetInfo()
+Data Node->Data Node: CreateBlockReport()
+Data Node->+Name Node: BlockReport(info, blockReport)
+Name Node->Name Node: SaveDateNodeInfo(info, blockReport)
+Name Node->-Data Node:
+
+loop periodically
+Data Node->Data Node: CreateBlockReport()
+Data Node->+Name Node: BlockReport(info, blockReport)
+end
 ```
