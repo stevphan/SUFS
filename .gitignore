@@ -1,2 +1,6 @@
 .DS_Store
+.vscode/
 bin/
+pkg/
+src/github.com
+src/golang.org
