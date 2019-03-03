@@ -14,5 +14,8 @@ func getFile(args []string) {
 	// TODO: check for valid filename
 	// TODO: check for valid save location
 
-	log.Println("get file got: ", args)
+	log.Println("get file args: ", args)
+	log.Fatalf("get file is not implemented yet")
+
+	return
 }

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
 )
 
 const (
 )
 
-func blockreport() { //returns nothing, this is what happens when a block report is received
+func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
 	
 }
