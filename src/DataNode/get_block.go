@@ -1,13 +1,31 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 )
 
-func getBlock(args []string) { // returns block requested
-	/*
-	0: Block ID
+/*
+BlockId
+ */
 
-	// TODO: change argument type to valid type (type BlockID)
-	*/
+
+ // blocks in directory
+ // blocks unique so check filename
+
+type getRequest struct {
+	BlockId string `json:"BlockId"`
+}
+
+
+func get_block(write http.ResponseWriter, req *http.Request) { // returns block requested from the current DN
+	decoder := json.NewDecoder(req.Body)
+	myReq := getRequest{}
+	err := decoder.Decode(&myReq)
+
+	log.Println(err)
+	fmt.Println("")
+
 }

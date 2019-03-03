@@ -1,15 +1,16 @@
 package main
 
-import (
-	"log"
-)
+/*
+Block
+BlockId
+DataNodeList
+ */
+
+ // passed in JSON payloads
 
 func StoreAndForward(args []string) { // 
-	/*
-	0: Block
-	1: BlockID
-	2: DataNodeList
-	*/
+
+
 
 	// TODO: change arguments to fit correct type
 	// TODO: check for valid filename
