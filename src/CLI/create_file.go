@@ -17,25 +17,13 @@ type nameNodeResponse struct {
 	// TODO: finish me
 }
 
-func createFile(args []string) {
-	msg := fmt.Sprintf("create file with args: %v", args)
-	verbosePrintln(msg)
+func createFile(createFileArgs []string) {
+	nameNodeAddr, filename, s3Url := parseCreateFileArgs(createFileArgs)
+	tempFilepath := dirTempCreateFiles + filename
 
-	if len(args) != 3 {
-		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <s3-url>")
-	}
-
-	nameNodeAddr := args[0]
-	filename := args[1]
-	s3Url := args[2]
-	tempFilepath := "/Users/Rivukis/Desktop/tmp/" + filename
-
-	if useLocalFile {
-		verbosePrintln("Assuming file is already downloaded")
-	} else {
-		downloadFile(tempFilepath, s3Url)
-		defer deleteTempFile(tempFilepath)
-	}
+	downloadFile(tempFilepath, s3Url)
+	// purposefully ignoring file deletion errors
+	defer os.Remove(tempFilepath)
 
 	fileInfo, err := os.Stat(tempFilepath)
 	checkErrorAndFatal("Unable to get statistics on temporary file", err)
@@ -47,10 +35,32 @@ func createFile(args []string) {
 
 	createFileInNameNode(nameNodeAddr, nnRequest)
 
+	sendBlocks()
+
+	return
+}
+
+func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
+	verboseMessage := fmt.Sprintf("create file with args: %v", args)
+	verbosePrintln(verboseMessage)
+
+	if len(args) != 3 {
+		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <s3-url>")
+	}
+
+	nameNodeAddr = args[0]
+	filename = args[1]
+	s3Url = args[2]
+
 	return
 }
 
 func downloadFile(filepath string, url string) {
+	if useLocalFile {
+		verbosePrintln("Assuming file is already downloaded")
+		return
+	}
+
 	verbosePrintln("Downloading file from S3 bucket")
 
 	// Create the file
@@ -89,10 +99,6 @@ func createFileInNameNode(nameNodeAddr string, request nameNodeRequest) (nnRes n
 	checkErrorAndFatal("Unable to parse response", err)
 
 	return
-}
-
-func deleteTempFile(filepath string) {
-	// TODO: finish me
 }
 
 func sendBlocks() {

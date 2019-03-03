@@ -10,8 +10,13 @@ var verbose = false
 var useLocalFile = false
 
 const (
+	// actions
 	actionCreateFile string = "create-file"
 	actionGetFile    string = "get-file"
+
+	// directories for temporary files
+	dirTempCreateFiles string = "/Users/Rivukis/Desktop/tmp/create/"
+	dirTempGetFiles    string = "/Users/Rivukis/Desktop/tmp/get/"
 )
 
 func main() {
@@ -25,6 +30,8 @@ func main() {
 	if len(normalArgs) == 0 {
 		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
 	}
+
+	// TODO: ensure that tmp/create & tmp/get directories exist
 
 	userAction := normalArgs[0]
 	switch userAction {
