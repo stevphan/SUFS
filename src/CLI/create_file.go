@@ -1,71 +1,100 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 )
 
+type nameNodeRequest struct {
+	FileName string `json:"FileName"`
+	Size     string `json:"Size"`
+}
+
+type nameNodeResponse struct {
+	// TODO: finish me
+}
+
 func createFile(args []string) {
-	/*
-		0: filename
-		1: s3 bucket url
-	*/
+	msg := fmt.Sprintf("create file with args: %v", args)
+	verbosePrintln(msg)
 
-	// TODO: check for 2 arguments
-	// TODO: check for valid filename
-	// TODO: check for valid s3 bucket url
-
-	log.Println("create file args: ", args)
-
-	if len(args) != 2 {
-		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <filename> <s3-url>")
-
-	}
-	filepath := args[0]
-	s3Url := args[1]
-
-	// filePathBase := "/Users/Rivukis/Desktop/tmp/"
-	// url := "https://s3.amazonaws.com/amazon-reviews-pds/tsv/amazon_reviews_us_Electronics_v1_00.tsv.gz"
-	// filepath := filePathBase + "mys3file"
-
-	downloadFile(filepath, s3Url)
-
-	fileInfo, err := os.Stat(filepath)
-	if err != nil {
-		log.Fatal(err)
+	if len(args) != 3 {
+		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <s3-url>")
 	}
 
-	log.Println("file size", fileInfo.Size())
+	nameNodeAddr := args[0]
+	filename := args[1]
+	s3Url := args[2]
+	tempFilepath := "/Users/Rivukis/Desktop/tmp/" + filename
+
+	if useLocalFile {
+		verbosePrintln("Assuming file is already downloaded")
+	} else {
+		downloadFile(tempFilepath, s3Url)
+		defer deleteTempFile(tempFilepath)
+	}
+
+	fileInfo, err := os.Stat(tempFilepath)
+	checkErrorAndFatal("Unable to get statistics on temporary file", err)
+
+	nnRequest := nameNodeRequest{
+		FileName: filename,
+		Size:     fmt.Sprintf("%d", fileInfo.Size()),
+	}
+
+	createFileInNameNode(nameNodeAddr, nnRequest)
 
 	return
 }
 
 func downloadFile(filepath string, url string) {
+	verbosePrintln("Downloading file from S3 bucket")
 
 	// Create the file
 	out, err := os.Create(filepath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErrorAndFatal("Unable to create temporary file", err)
 	defer out.Close()
 
 	// Get the data
 	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErrorAndFatal("Unable to download file from S3 bucket URL", err)
 	defer resp.Body.Close()
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Non 200 response when downloading file: %s", resp.Status)
+		log.Fatalf("Received status code %s when downloading S3 bucket file", resp.Status)
 	}
 
 	// Writer the body to file
 	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErrorAndFatal("Unable to get S3 bucket file from response", err)
+
+	verbosePrintln("Successfully downloaded file")
+}
+
+func createFileInNameNode(nameNodeAddr string, request nameNodeRequest) (nnRes nameNodeResponse) {
+	verbosePrintln("Requesting name node to create the file")
+
+	nameNodeUrl := "http://" + nameNodeAddr + "/create-file"
+	buffer, err := convertObjectToJsonBuffer(request)
+	checkErrorAndFatal("Error while communicating to the name node:", err)
+
+	res, err := http.Post(nameNodeUrl, "application/json", buffer)
+	checkErrorAndFatal("Error while communicating to the name node:", err)
+
+	err = objectFromResponse(res, &nnRes)
+	checkErrorAndFatal("Unable to parse response", err)
+
+	return
+}
+
+func deleteTempFile(filepath string) {
+	// TODO: finish me
+}
+
+func sendBlocks() {
+	// TODO: finish me
 }
