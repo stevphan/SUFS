@@ -8,12 +8,12 @@ import (
 	"os"
 )
 
-type nameNodeRequest struct {
+type createFileNameNodeRequest struct {
 	FileName string `json:"FileName"`
 	Size     string `json:"Size"`
 }
 
-type nameNodeResponse struct {
+type createFileNameNodeResponse struct {
 	// TODO: finish me
 }
 
@@ -28,12 +28,12 @@ func createFile(createFileArgs []string) {
 	fileInfo, err := os.Stat(tempFilepath)
 	checkErrorAndFatal("Unable to get statistics on temporary file", err)
 
-	nnRequest := nameNodeRequest{
+	createFileRequest := createFileNameNodeRequest{
 		FileName: filename,
 		Size:     fmt.Sprintf("%d", fileInfo.Size()),
 	}
 
-	createFileInNameNode(nameNodeAddr, nnRequest)
+	createFileInNameNode(nameNodeAddr, createFileRequest)
 
 	sendBlocks()
 
@@ -85,7 +85,7 @@ func downloadFile(filepath string, url string) {
 	verbosePrintln("Successfully downloaded file")
 }
 
-func createFileInNameNode(nameNodeAddr string, request nameNodeRequest) (nnRes nameNodeResponse) {
+func createFileInNameNode(nameNodeAddr string, request createFileNameNodeRequest) (createFileResponse createFileNameNodeResponse) {
 	verbosePrintln("Requesting name node to create the file")
 
 	nameNodeUrl := "http://" + nameNodeAddr + "/create-file"
@@ -95,7 +95,7 @@ func createFileInNameNode(nameNodeAddr string, request nameNodeRequest) (nnRes n
 	res, err := http.Post(nameNodeUrl, "application/json", buffer)
 	checkErrorAndFatal("Error while communicating to the name node:", err)
 
-	err = objectFromResponse(res, &nnRes)
+	err = objectFromResponse(res, &createFileResponse)
 	checkErrorAndFatal("Unable to parse response", err)
 
 	return
