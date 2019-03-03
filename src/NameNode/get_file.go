@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
 )
 
 const (
 )
 
-func getfile(fileName string) { //return dataNode list per block
+func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode list per block
 	
 }
