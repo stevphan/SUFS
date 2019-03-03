@@ -7,6 +7,7 @@ import (
 )
 
 var verbose = false
+var useLocalFile = false
 
 const (
 	actionCreateFile string = "create-file"
@@ -19,6 +20,7 @@ func main() {
 
 	normalArgs, options := parseOsArgs()
 	verbose = contains(options, "v")
+	useLocalFile = contains(options, "use-local-file")
 
 	if len(normalArgs) == 0 {
 		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
