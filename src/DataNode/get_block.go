@@ -59,7 +59,7 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 
 // DN will have it's own S3 URL to save to, so for now just save to a folder on disk
 
-func get_block(write http.ResponseWriter, req *http.Request) string { // returns block requested from the current DN
+func get_block(write http.ResponseWriter, req *http.Request) { // returns block requested from the current DN
 	blockId := getRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&blockId)
@@ -103,8 +103,9 @@ func get_block(write http.ResponseWriter, req *http.Request) string { // returns
 		returnData.Error = "404"
 	}
 
-	reutrnJson,_ := convertObjectToJsonBuffer(returnData)
-	return returnData
+	returnContent, _ := convertObjectToJsonBuffer(returnData)
+
+	return returnContent
 
 
 }
