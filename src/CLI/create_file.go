@@ -1,32 +1,26 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 func createFile(createFileArgs []string) {
 	nameNodeAddr, filename, s3Url := parseCreateFileArgs(createFileArgs)
-	tempFilepath := dirTempCreateFiles + filename
 
-	downloadFile(tempFilepath, s3Url)
-	// purposefully ignoring file deletion errors
-	defer os.Remove(tempFilepath)
-
-	fileInfo, err := os.Stat(tempFilepath)
-	checkErrorAndFatal("Unable to get statistics on temporary file", err)
+	fileData := downloadFile(s3Url)
 
 	createFileRequest := createFileNameNodeRequest{
 		FileName: filename,
-		Size:     fmt.Sprintf("%d", fileInfo.Size()),
+		Size:     fmt.Sprintf("%d", len(fileData)),
 	}
+	createFileResponse := createFileInNameNode(nameNodeAddr, createFileRequest)
 
-	createFileInNameNode(nameNodeAddr, createFileRequest)
-
-	sendBlocks()
+	blocks := makeBlocks(fileData)
+	storeAllBlocks(createFileResponse, blocks)
 
 	return
 }
@@ -46,38 +40,32 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	return
 }
 
-func downloadFile(filepath string, url string) {
-	if useLocalFile {
-		verbosePrintln("Assuming file is already downloaded")
-		return
-	}
-
+func downloadFile(url string) []byte {
 	verbosePrintln("Downloading file from S3 bucket")
 
-	// Create the file
-	out, err := os.Create(filepath)
-	checkErrorAndFatal("Unable to create temporary file", err)
-	defer out.Close()
-
-	// Get the data
-	resp, err := http.Get(url)
+	res, err := http.Get(url)
 	checkErrorAndFatal("Unable to download file from S3 bucket URL", err)
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	// Check server response
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Received status code %s when downloading S3 bucket file", resp.Status)
+	if res.StatusCode != http.StatusOK {
+		log.Fatalf("Received status code %s when downloading S3 bucket file", res.Status)
 	}
 
-	// Writer the body to file
-	_, err = io.Copy(out, resp.Body)
-	checkErrorAndFatal("Unable to get S3 bucket file from response", err)
+	if res.Body == nil {
+		log.Fatal("S3 response has no body")
+	}
+
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		checkErrorAndFatal("Unable to read bytes from S3 response body", err)
+	}
 
 	verbosePrintln("Successfully downloaded file")
+	return data
 }
 
 func createFileInNameNode(nameNodeAddr string, request createFileNameNodeRequest) (createFileResponse createFileNameNodeResponse) {
-	verbosePrintln("Requesting name node to create the file")
+	verbosePrintln("Attempting to create file on name node")
 
 	nameNodeUrl := "http://" + nameNodeAddr + "/create-file"
 	buffer, err := convertObjectToJsonBuffer(request)
@@ -89,9 +77,84 @@ func createFileInNameNode(nameNodeAddr string, request createFileNameNodeRequest
 	err = objectFromResponse(res, &createFileResponse)
 	checkErrorAndFatal("Unable to parse response", err)
 
+	verbosePrintln("Successfully created a file on the name node")
+
 	return
 }
 
-func sendBlocks() {
-	// TODO: finish me
+func makeBlocks(fileData []byte) []string {
+	blocks := []string{}
+	byteIndex := 0
+
+	for byteIndex < len(fileData) {
+		bytesLeftCount := len(fileData) - byteIndex
+		endIndex := byteIndex + min(blockSize, bytesLeftCount)
+
+		base64Encoded := base64.StdEncoding.EncodeToString(fileData[byteIndex:endIndex])
+		blocks = append(blocks, base64Encoded)
+
+		byteIndex += blockSize
+	}
+
+	return blocks
+}
+
+func storeAllBlocks(createFileResponse createFileNameNodeResponse, blocks []string) {
+	if len(createFileResponse.BlockInfos) != len(blocks) {
+		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'", len(createFileResponse.BlockInfos), len(blocks))
+	}
+
+	verbosePrintln("Attempting to store all blocks")
+
+	for i, blockInfo := range createFileResponse.BlockInfos {
+		storeBlockReq := makeStoreBlockRequest(blocks[i], blockInfo)
+		successful := storeSingleBlock(storeBlockReq)
+
+		verbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
+
+		if !successful {
+			log.Fatalf("Unable to store block '%s' on any data node", blockInfo.BlockId)
+		}
+	}
+
+	verbosePrintln("Successfully stored all blocks to a data node")
+}
+
+func storeSingleBlock(storeBlockReq storeBlockRequest) bool {
+	for _, dataNodeIp := range storeBlockReq.DnList {
+		success := storeSingleToDataNode(storeBlockReq, dataNodeIp)
+		if success {
+			return true
+		}
+	}
+
+	return false
+}
+
+func storeSingleToDataNode(storeBlockReq storeBlockRequest, dataNodeIp string) bool {
+	verbosePrintln(fmt.Sprintf("Attempting to save block to data node '%s'", dataNodeIp))
+
+	dataNodeUrl := "http://" + dataNodeIp + "/storeBlock"
+	buffer, err := convertObjectToJsonBuffer(storeBlockReq)
+	if err != nil {
+		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
+		return false
+	}
+
+	res, err := http.Post(dataNodeUrl, "application/json", buffer)
+	if err != nil {
+		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
+		return false
+	}
+
+	storeBlockRes := storeBlockResponse{}
+	err = objectFromResponse(res, &storeBlockRes)
+	checkErrorAndFatal("Unable to parse response", err)
+
+	if storeBlockRes.Err != "" {
+		verbosePrintln(fmt.Sprint("Error from data node:", storeBlockRes.Err))
+		return false
+	}
+
+	return true
 }

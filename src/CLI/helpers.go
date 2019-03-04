@@ -19,6 +19,14 @@ func contains(s []string, e string) bool {
 	return false
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
 func verbosePrintln(s string) {
 	if verbose {
 		fmt.Println(s)

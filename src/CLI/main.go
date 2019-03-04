@@ -13,13 +13,12 @@ var verbose = false
 var useLocalFile = false
 
 const (
+	// system constants
+	blockSize int = 64 * 1024 * 1024 // 64MB
+
 	// actions
 	actionCreateFile string = "create-file"
 	actionGetFile    string = "get-file"
-
-	// directories for temporary files
-	dirTempCreateFiles string = "/Users/Rivukis/Desktop/tmp/create/"
-	dirTempGetFiles    string = "/Users/Rivukis/Desktop/tmp/get/"
 )
 
 func doRequestTesting() {
