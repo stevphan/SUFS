@@ -8,15 +8,6 @@ import (
 	"os"
 )
 
-type createFileNameNodeRequest struct {
-	FileName string `json:"FileName"`
-	Size     string `json:"Size"`
-}
-
-type createFileNameNodeResponse struct {
-	// TODO: finish me
-}
-
 func createFile(createFileArgs []string) {
 	nameNodeAddr, filename, s3Url := parseCreateFileArgs(createFileArgs)
 	tempFilepath := dirTempCreateFiles + filename
