@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 )
 
 const (
 	repFact = 3
+	saveData = "fileData.json"
 )
 
 type file struct {
@@ -33,6 +32,7 @@ var (
 
 func main() {
 	//TODO read from disk, build the files from that
+	readFilesFromDisk()
 	//for testing
 	dnList = append(dnList, "Hello")
 	numDn++
@@ -49,24 +49,4 @@ func main() {
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
-}
-
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
-
-func convertObjectToJson(object interface{}) ([]byte, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }

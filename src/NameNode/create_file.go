@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 )
@@ -35,15 +36,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	log.Println(err)
 
 	//Checks if the file exist
-	if files.numFiles < 1 {
-		//TODO fail write (DONE?)
-		myRes := responseObj{}
-		js, err := convertObjectToJson(myRes)
-		log.Print(err)
-		write.Header().Set("Content-Type", "application/json")
-		write.Write(js)
-		return
-	} else {
+	if files.numFiles > 0 {
 		for i := 0; i < files.numFiles; i++ {
 			if files.metaData[i].fileName == myReq.Filename {
 				//TODO fail write (DONE?)
@@ -62,10 +55,12 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		log.Print("Error with converting string to int64")
 		log.Print(err)
 	} else {
-		blocksRequired = int(size/blockSize)
+		temp := float64(size)/float64(blockSize)
+		temp = math.Ceil(temp)
+		blocksRequired = int(temp)
 	}
 
-	fmt.Println(blocksRequired)
+	fmt.Println()
 
 	//TODO choose DN to send each block to (check size of, choose lowest)
 
@@ -102,7 +97,23 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		myRes.Blocks[i] = blockList
 	}
 
-	fmt.Println(myRes)
+	//TODO save filename
+	fileToStore := fileMetaData{}
+	fileToStore.fileName = myReq.Filename
+	fileToStore.numBlocks = blocksRequired
+	fileToStore.blockLists = make([]blockList, blocksRequired)
+	for i := 0; i < blocksRequired; i++ {
+		blockList := blockList{}
+		for j := 0; j < repFact; j++ {
+			blockList.dnList[j] = ""
+		}
+		fileToStore.blockLists[i] = blockList
+	}
+	files.numFiles++
+	files.metaData = append(files.metaData, fileToStore)
+	fmt.Println(files)
+	//TODO save files to disk (helper function?)
+	writeFilesToDisk()
 	//TODO return the array of createResponse struct (DONE?)
 
 	//js, err := convertObjectToJsonBuffer(myRes)
