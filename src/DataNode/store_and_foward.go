@@ -84,10 +84,22 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // return
 	// check if file exists already
 	if (exists(path)) { // for debug purposes, otherwise dont print anything
 		fmt.Println("FOUND! ... dont do anything")
+
+		return
 	} else {
 		fmt.Println("Block not in Data Node! Saving...")
 		decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
-		if isError(err) {return}
+
+		if isError(err) { // if there is an error
+			errorReq := saveBlockResponse{}
+			errorReq.Error = "FILE_EXISTS"
+			js, err := convertObjectToJson(errorReq)
+			log.Print(err)
+			write.Header().Set("Content-Type", "application/json")
+			_, _ = write.Write(js)
+			return
+		}
+
 		fmt.Println("Decoded block data: " + string(decoded))
 		createFile(path)
 		writeFile(path, string(decoded))
