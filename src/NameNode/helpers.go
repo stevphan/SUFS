@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
@@ -25,21 +28,24 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 	return data, nil
 }
 
-/*func writeFilesToDisk() {
-	js, _ := convertObjectToJson(files)
+func writeFilesToDisk() {
+	js, _ := json.MarshalIndent(files, "", " ")
 	err := ioutil.WriteFile(saveData, js, 0644)
-	fmt.Println(err)
+	errorPrint(err)
 }
 
 func readFilesFromDisk() {
 	tempFile, err := os.Open(saveData)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	errorPrint(err)
 	decoder := json.NewDecoder(tempFile)
 	myFile := file{}
-	decoder.Decode(&myFile)
+	err = decoder.Decode(&myFile)
+	errorPrint(err)
 	files = myFile
-	fmt.Println(files)
-	fmt.Println()
-}*/
+}
+
+func errorPrint(err error) {
+	if err != nil {
+		log.Println(err.Error())
+	}
+}

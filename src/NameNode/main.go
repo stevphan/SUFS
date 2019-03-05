@@ -9,21 +9,6 @@ const (
 	saveData = "fileData.json"
 )
 
-type file struct {
-	numFiles int
-	metaData []fileMetaData
-}
-
-type fileMetaData struct {
-	fileName string
-	numBlocks int
-	blockLists []blockList
-}
-
-type blockList struct {
-	dnList [repFact]string //stores IP of DNs it is stored at
-}
-
 var (
 	dnList = []string{}
 	numDn = 0
@@ -31,7 +16,6 @@ var (
 )
 
 func main() {
-	//TODO read from disk, build the files from that
 	readFilesFromDisk()
 	//for testing
 	dnList = append(dnList, "Hello")
