@@ -59,7 +59,7 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 
 // DN will have it's own S3 URL to save to, so for now just save to a folder on disk
 
-func get_block(write http.ResponseWriter, req *http.Request) getResponse { // returns block requested from the current DN
+func get_block(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
 	blockId := getRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&blockId)
@@ -108,7 +108,7 @@ func get_block(write http.ResponseWriter, req *http.Request) getResponse { // re
 	log.Print(err)
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
-	return returnData
+	return
 	//	TODO: figure out how to return a JSON payload... embarassing. feels like it was wrong?
 
 
