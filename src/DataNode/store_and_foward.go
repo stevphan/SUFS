@@ -92,7 +92,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // return
 
 		if isError(err) { // if there is an error
 			errorReq := saveBlockResponse{}
-			errorReq.Error = "FILE_EXISTS"
+			errorReq.Error = "some_error"
 			js, err := convertObjectToJson(errorReq)
 			log.Print(err)
 			write.Header().Set("Content-Type", "application/json")
