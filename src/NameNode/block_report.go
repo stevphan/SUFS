@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -49,15 +48,18 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 			}
 			if !ipFound {
 				j := 0
-				for !ipFound || j < repFact{
+				for !ipFound && j < repFact{
 					if files.MetaData[fileIndex].BlockLists[blockId].DnList[j] == "" {
 						files.MetaData[fileIndex].BlockLists[blockId].DnList[j] = myReq.MyIp
+						ipFound = true
 					}
+					j++
 				}
 			}
 		}
+		//TODO what to do if the file doesn't exist
 	}
-	fmt.Println()
+	writeFilesToDisk()
 }
 
 //Returns true if file name found plus the index it is in the files.metadata[]
