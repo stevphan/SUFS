@@ -95,6 +95,6 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // return
 
 	//	TODO: figure out 'fowarding'
 	// 	TODO: figure out framework? could be a massive misunderstanding on my part...
-	//	TODO: if block already exists, what about overwriting old data? should I write anyway?
+	//	TODO: if block already exists, what about overwriting old data (i.e. adding a line to a file)? should I write anyway?
 
 }
