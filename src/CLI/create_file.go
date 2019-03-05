@@ -13,16 +13,11 @@ func createFile(createFileArgs []string) {
 
 	fileData := downloadFile(s3Url)
 
-	createFileRequest := createFileNameNodeRequest{
-		FileName: filename,
-		Size:     fmt.Sprintf("%d", len(fileData)),
-	}
-	createFileResponse := createFileInNameNode(nameNodeAddr, createFileRequest)
+	fileSize := fmt.Sprintf("%d", len(fileData))
+	createFileResponse := createFileInNameNode(nameNodeAddr, filename, fileSize)
 
 	blocks := makeBlocks(fileData)
 	storeAllBlocks(createFileResponse, blocks)
-
-	return
 }
 
 func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
@@ -30,7 +25,7 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	verbosePrintln(verboseMessage)
 
 	if len(args) != 3 {
-		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <s3-url>")
+		log.Fatal("Input Error: Must use create-file in the following format 'CLI create-file <name-node-address> <filename> <s3-url>")
 	}
 
 	nameNodeAddr = args[0]
@@ -64,18 +59,14 @@ func downloadFile(url string) []byte {
 	return data
 }
 
-func createFileInNameNode(nameNodeAddr string, request createFileNameNodeRequest) (createFileResponse createFileNameNodeResponse) {
+func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse createFileNameNodeResponse) {
 	verbosePrintln("Attempting to create file on name node")
 
-	nameNodeUrl := "http://" + nameNodeAddr + "/create-file"
-	buffer, err := convertObjectToJsonBuffer(request)
-	checkErrorAndFatal("Error while communicating to the name node:", err)
-
-	res, err := http.Post(nameNodeUrl, "application/json", buffer)
-	checkErrorAndFatal("Error while communicating to the name node:", err)
-
-	err = objectFromResponse(res, &createFileResponse)
-	checkErrorAndFatal("Unable to parse response", err)
+	createFileRequest := createFileNameNodeRequest{
+		FileName: filename,
+		Size:     size,
+	}
+	sendRequestToNameNode(nameNodeAddr, "create-file", createFileRequest, &createFileResponse)
 
 	verbosePrintln("Successfully created a file on the name node")
 

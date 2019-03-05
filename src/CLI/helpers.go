@@ -68,6 +68,20 @@ func objectFromResponse(res *http.Response, object interface{}) error {
 	return err
 }
 
+func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, response interface{}) {
+	buffer, err := convertObjectToJsonBuffer(request)
+	checkErrorAndFatal("Error while communicating with the name node:", err)
+
+	url := "http://" + nameNodeAddr + path
+	res, err := http.Post(url, "application/json", buffer)
+	checkErrorAndFatal("Error while communicating with the name node:", err)
+
+	err = objectFromResponse(res, response)
+	checkErrorAndFatal("Unable to parse response", err)
+
+	return
+}
+
 type LogFlag int
 
 const (
