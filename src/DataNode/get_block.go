@@ -69,7 +69,7 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 
 	fmt.Printf("Received: %s\n", blockId)
 
-	tempPath := "/Users/stxv/blocks/" + blockId.BlockId
+	tempPath := s3address + blockId.BlockId
 
 	returnData := &getResponse{
 		Block: "",
@@ -85,16 +85,16 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 		// encode base64
 		returnData.Block = base64.StdEncoding.EncodeToString(content)
 
-		// for testing, print encoded values
-		//fmt.Println("ENCODED: " + encoded)
-		//
-		//// check if decode works by testing decoded value
-		//decoded, err := base64.StdEncoding.DecodeString(encoded)
-		//if (err != nil) {
-		//
-		//}
-		//// testing, print decoded values (expected: asdf)
-		//fmt.Println("decoded: " + string(decoded))
+		//for testing, print encoded values
+		fmt.Println("ENCODED: " + returnData.Block)
+
+		// check if decode works by testing decoded value
+		decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
+		if (err != nil) {
+
+		}
+		// testing, print decoded values (expected: asdf)
+		fmt.Println("decoded: " + string(decoded))
 
 
 
@@ -103,9 +103,11 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 		returnData.Error = "404"
 	}
 
-	returnContent, _ := convertObjectToJsonBuffer(returnData)
+	//returnContent, _ := convertObjectToJsonBuffer(returnData)
 
-	return returnContent
+	return
+
+	//	TODO: figure out how to return a JSON payload... embarassing
 
 
 }

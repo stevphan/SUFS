@@ -10,8 +10,11 @@ import (
 	"net/http"
 )
 
-var verbose = false
+type address struct {
+	s3address string
+}
 
+const s3address string = "/Users/stxv/blocks/"
 
 func main() {
 	http.HandleFunc("/getBlock", get_block)
