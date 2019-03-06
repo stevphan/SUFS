@@ -54,34 +54,35 @@ func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string)
 
 	blocks = []string{}
 
-	for _, info := range getFileResponse.BlockInfos {
-		blocks = append(blocks, getSingleBlock(info))
+	for i, info := range getFileResponse.BlockInfos {
+		block, success := getSingleBlock(info)
+		if !success {
+			log.Fatalf("Unable to get block %d/%d", i, len(getFileResponse.BlockInfos))
+		}
+
+		blocks = append(blocks, block)
 	}
 
 	return
 }
 
-func getSingleBlock(info shared.BlockInfo) string {
+func getSingleBlock(info shared.BlockInfo) (string, bool) {
 	shared.VerbosePrintln("Attempting to get block from data node")
 
-	// for _, dn := range info.DnList {
-	// 	getBlockRequest := getBlockRequest{
-	// 		BlockId: info.BlockId,
-	// 	}
+	for _, dn := range info.DnList {
+		getBlockRequest := shared.GetBlockRequest{
+			BlockId: info.BlockId,
+		}
 
-	// 	// TODO: try each DN until one succeeds
+		block, success := getSingleBlockFromDataNode(getBlockRequest, dn)
+		if success {
+			shared.VerbosePrintln("Successfully got block from a data node")
 
-	// 	// blockResponse := getBlockResponse{}
-	// 	// sendRequestToNode(dn, "get-block", getBlockRequest, &blockResponse)
+			return block, true
+		}
+	}
 
-	// 	// if blockResponse.Err != "" {
-
-	// 	// }
-	// }
-
-	shared.VerbosePrintln("Successfully got block from a data node")
-
-	return ""
+	return "", false
 }
 
 func getSingleBlockFromDataNode(request shared.GetBlockRequest, nodeAddr string) (string, bool) {
