@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"net/http"
+	"shared"
 )
 
 /*
@@ -58,16 +59,16 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 }
 
 func get_block(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
-	blockId := getRequest{}
+	blockReq := shared.GetBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&blockId)
+	err := decoder.Decode(&blockReq)
 	if err != nil {
 		log.Fatal("Decoding error: ", err)
 	}
 
-	fmt.Printf("Received: %s\n", blockId)
+	fmt.Printf("Received: %s\n", blockReq)
 
-	tempPath := s3address + blockId.BlockId
+	tempPath := folderPath + blockReq.BlockId
 
 	returnData := getResponse{
 		Block: "",
@@ -75,7 +76,7 @@ func get_block(write http.ResponseWriter, req *http.Request)  { // returns block
 	}
 
 	if exists(tempPath) {
-		fmt.Println("found " + blockId.BlockId)
+		fmt.Println("found " + blockReq.BlockId)
 		file, _ := os.Open(tempPath)
 		reader := bufio.NewReader(file)
 		content, _ := ioutil.ReadAll(reader)

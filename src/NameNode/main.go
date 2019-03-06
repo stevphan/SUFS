@@ -14,6 +14,10 @@ var (
 	numDn = 0
 	files file
 )
+/*
+block report send port as well
+possibly use as argument during init (i.e. when booting main look for IP and port
+ */
 
 func main() {
 	readFilesFromDisk()

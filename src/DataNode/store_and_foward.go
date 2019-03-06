@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"shared"
 )
 
 /*
@@ -17,11 +18,10 @@ DataNodeList
 
  // passed in JSON payloads
 
-type storeBlockRequest struct{
-	Block string `json:"Block"`
-	DnList[] string `json:"DataNodeList"`
-	BlockId string `json:"BlockId"`
 
+func remove(s []int, i int) []int {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 
@@ -51,6 +51,17 @@ func createFile(path string) {
 	fmt.Println("==> done creating file", path)
 }
 
+func returnError(write http.ResponseWriter, errMessage string) {
+	 // if there is an error send a response
+		errorReq := shared.StoreBlockResponse{}
+		errorReq.Err = errMessage
+		js, _ := convertObjectToJson(errorReq)
+		write.Header().Set("Content-Type", "application/json")
+		_, _ = write.Write(js)
+		return
+
+}
+
 func writeFile(path string, data string) {
 	// open file using READ & WRITE permission
 	var file, err = os.OpenFile(path, os.O_RDWR, 0644)
@@ -69,7 +80,7 @@ func writeFile(path string, data string) {
 }
 
 func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores Block data into current DataNode, and forwards it to the next DataNode on the list
-	storeReq := storeBlockRequest{}
+	storeReq := shared.StoreBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&storeReq)
 	if err != nil {
@@ -79,35 +90,60 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	fmt.Printf("Received: %s\n", storeReq)
 	fmt.Println("")
 
-	path := s3address + storeReq.BlockId
+	path := folderPath + storeReq.BlockId
 
-	// check if file exists already
-	if exists(path) { // for debug purposes, otherwise dont print anything
-		fmt.Println("FOUND! ... dont do anything")
+	// FOR TESTING ... will be IP addr later and wont be able to
+	s3address := "test_node_2.aws.com"
+
+	// if list is empty, then just stop
+	if len(storeReq.DnList) < 1 {
 		return
-	} else {
-		fmt.Println("Block not in Data Node! Saving...")
-		decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
-
-		if isError(err) { // if there is an error send a response
-			errorReq := storeBlockResponse{}
-			errorReq.Error = "some_error"
-			js, err := convertObjectToJson(errorReq)
-			log.Print(err)
-			write.Header().Set("Content-Type", "application/json")
-			_, _ = write.Write(js)
-			return
-		}
-
-		fmt.Println("Decoded block data: " + string(decoded))
-		createFile(path)
-		writeFile(path, string(decoded))
 	}
 
+	// check if self is in DnList, if not then abort
+	var isContained = false
+	for _, v := range storeReq.DnList {
+		if v == s3address {
+			isContained = true
+		}
+	}
+	if !isContained {
+		returnError(write, "DN_NOT_IN_LIST")
+	}
 
+	// decode block data
+	fmt.Println("Block not in Data Node! Saving...")
+	decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
+
+	if err != nil {
+		log.Fatal("Encoding error: ", err)
+	}
+
+	fmt.Println("Decoded block data: " + string(decoded))
+	// create & write data
+	createFile(path)
+	writeFile(path, string(decoded))
+	// find self and drop from array
+	for i, v := range storeReq.DnList {
+		if v == s3address {
+			storeReq.DnList = append(storeReq.DnList[:i], storeReq.DnList[i+1:]...)
+			break
+		}
+	}
+	// forward without self in DnList
+	shared.StoreSingleBlock(storeReq)
+
+	fmt.Println()
+
+	/*
+	on success, drop self from array
+	if array not empty
+	forward to first in array
+	 */
 
 	//	TODO: figure out 'forwarding'
 	//	TODO: if block already exists, what about overwriting old data (i.e. adding a line to a file)? should I write anyway?
 	// if I have the address/location of each DN, maybe insert directly into the DN??? would have to set up and test if possible [
 
 }
+
