@@ -31,9 +31,9 @@ func main() {
 	dnList = append(dnList, "Hello3")
 	numDn++
 
-	http.HandleFunc("/create_file", createFile)
-	http.HandleFunc("/get_file", getFile)
-	http.HandleFunc("/block_report", blockReport)
+	http.HandleFunc("/createFile", createFile)
+	http.HandleFunc("/getFile", getFile)
+	http.HandleFunc("/blockReport", blockReport)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
+	"shared"
 )
 
 const (
@@ -15,16 +17,16 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	var blocksRequired int
 
 	decoder := json.NewDecoder(req.Body)
-	myReq := createRequest{}
+	myReq := shared.CreateFileNameNodeRequest{}
 	err := decoder.Decode(&myReq)
 	errorPrint(err)
 
 	//Checks if the file exist
 	if files.NumFiles > 0 {
 		for i := 0; i < files.NumFiles; i++ {
-			if files.MetaData[i].FileName == myReq.Filename {
+			if files.MetaData[i].FileName == myReq.FileName {
 				//TODO fail write (DONE?)
-				myRes := responseObj{}
+				myRes := shared.CreateFileNameNodeResponse{}
 				js, err := convertObjectToJson(myRes)
 				errorPrint(err)
 				write.Header().Set("Content-Type", "application/json")
@@ -46,7 +48,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	var replicationFactor int
 	if numDn == 0 { //There are no DN
 		//TODO fail write (DONE?)
-		myRes := responseObj{}
+		myRes := shared.CreateFileNameNodeResponse{}
 		js, err := convertObjectToJson(myRes)
 		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")
@@ -60,11 +62,11 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 
 	//This chooses DN for each block
 	j := 0 //index of the DataNode list
-	myRes := responseObj{}
-	myRes.Blocks = make([]createResponse, blocksRequired)
+	myRes := shared.CreateFileNameNodeResponse{}
+	myRes.BlockInfos = make([]shared.BlockInfo, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
-		blockList := createResponse{}
-		blockList.BlockId = myReq.Filename + "_" + strconv.Itoa(i)
+		blockList := shared.BlockInfo{}
+		blockList.BlockId = myReq.FileName + "_" + strconv.Itoa(i)
 		blockList.DnList = make([]string, replicationFactor)
 		for k := 0; k < replicationFactor; k++ {
 			blockList.DnList[k] = dnList[j]
@@ -73,28 +75,29 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 				j = 0
 			}
 		}
-		myRes.Blocks[i] = blockList
+		myRes.BlockInfos[i] = blockList
 	}
 
 	//Saves the metadata of the file, nothing in DnList yet
 	fileToStore := fileMetaData{}
-	fileToStore.FileName = myReq.Filename
+	fileToStore.FileName = myReq.FileName
 	fileToStore.NumBlocks = blocksRequired
 	fileToStore.BlockLists = make([]blockList, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
 		blockList := blockList{}
-		for j := 0; j < repFact; j++ {
+		/*for j := 0; j < repFact; j++ {
 			blockList.DnList[j] = ""
-		}
+		}*/
 		fileToStore.BlockLists[i] = blockList
 	}
 	files.NumFiles++
 	files.MetaData = append(files.MetaData, fileToStore)
 	writeFilesToDisk()
-
-	//Returns myRes which is a responseObj
+	
+	//Returns myRes which is a shared.CreateFileNameNodeResponse
 	js, err := convertObjectToJson(myRes)
 	errorPrint(err)
 	write.Header().Set("Content-Type", "application/json")
 	write.Write(js)
+	log.Println("FILE CREATED")
 }
