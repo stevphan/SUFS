@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"shared"
 )
 
 func createFile(createFileArgs []string) {
@@ -59,10 +60,10 @@ func downloadFile(url string) []byte {
 	return data
 }
 
-func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse createFileNameNodeResponse) {
+func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse shared.CreateFileNameNodeResponse) {
 	verbosePrintln("Attempting to create file on name node")
 
-	createFileRequest := createFileNameNodeRequest{
+	createFileRequest := shared.CreateFileNameNodeRequest{
 		FileName: filename,
 		Size:     size,
 	}
@@ -90,7 +91,7 @@ func makeBlocks(fileData []byte) []string {
 	return blocks
 }
 
-func storeAllBlocks(createFileResponse createFileNameNodeResponse, blocks []string) {
+func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks []string) {
 	if len(createFileResponse.BlockInfos) != len(blocks) {
 		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'", len(createFileResponse.BlockInfos), len(blocks))
 	}
@@ -98,7 +99,7 @@ func storeAllBlocks(createFileResponse createFileNameNodeResponse, blocks []stri
 	verbosePrintln("Attempting to store all blocks")
 
 	for i, blockInfo := range createFileResponse.BlockInfos {
-		storeBlockReq := makeStoreBlockRequest(blocks[i], blockInfo)
+		storeBlockReq := shared.MakeStoreBlockRequest(blocks[i], blockInfo)
 		successful := storeSingleBlock(storeBlockReq)
 
 		verbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
@@ -111,7 +112,7 @@ func storeAllBlocks(createFileResponse createFileNameNodeResponse, blocks []stri
 	verbosePrintln("Successfully stored all blocks to a data node")
 }
 
-func storeSingleBlock(storeBlockReq storeBlockRequest) bool {
+func storeSingleBlock(storeBlockReq shared.StoreBlockRequest) bool {
 	for _, dataNodeIp := range storeBlockReq.DnList {
 		success := storeSingleToDataNode(storeBlockReq, dataNodeIp)
 		if success {
@@ -122,7 +123,7 @@ func storeSingleBlock(storeBlockReq storeBlockRequest) bool {
 	return false
 }
 
-func storeSingleToDataNode(storeBlockReq storeBlockRequest, dataNodeIp string) bool {
+func storeSingleToDataNode(storeBlockReq shared.StoreBlockRequest, dataNodeIp string) bool {
 	verbosePrintln(fmt.Sprintf("Attempting to save block to data node '%s'", dataNodeIp))
 
 	dataNodeUrl := "http://" + dataNodeIp + "/storeBlock"
@@ -138,7 +139,7 @@ func storeSingleToDataNode(storeBlockReq storeBlockRequest, dataNodeIp string) b
 		return false
 	}
 
-	storeBlockRes := storeBlockResponse{}
+	storeBlockRes := shared.StoreBlockResponse{}
 	err = objectFromResponse(res, &storeBlockRes)
 	checkErrorAndFatal("Unable to parse response", err)
 

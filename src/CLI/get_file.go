@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"shared"
 )
 
 func getFile(getFileArgs []string) {
@@ -32,10 +33,10 @@ func parseGetFileArgs(args []string) (nameNodeAddr, filename, saveLocation strin
 	return
 }
 
-func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse getFileNameNodeResponse) {
+func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse shared.GetFileNameNodeResponse) {
 	verbosePrintln("Attempting to get file from name node")
 
-	getFileRequest := getFileNameNodeRequest{
+	getFileRequest := shared.GetFileNameNodeRequest{
 		FileName: filename,
 	}
 	sendRequestToNameNode(nameNodeAddr, "get-file", getFileRequest, &getFileResponse)
@@ -45,7 +46,7 @@ func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse getFileNa
 	return
 }
 
-func getBlocks(getFileResponse getFileNameNodeResponse) (blocks []string) {
+func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string) {
 	if getFileResponse.Err != "" {
 		log.Fatal(getFileResponse.Err)
 	}
@@ -59,7 +60,7 @@ func getBlocks(getFileResponse getFileNameNodeResponse) (blocks []string) {
 	return
 }
 
-func getSingleBlock(info blockInfo) string {
+func getSingleBlock(info shared.BlockInfo) string {
 	verbosePrintln("Attempting to get block from data node")
 
 	// for _, dn := range info.DnList {

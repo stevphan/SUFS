@@ -1,56 +1,56 @@
-package main
+package shared
 
 // Create
 
-type createFileNameNodeRequest struct {
+type CreateFileNameNodeRequest struct {
 	FileName string `json:"FileName"`
 	Size     string `json:"Size"`
 }
 
-type createFileNameNodeResponse struct {
-	BlockInfos []blockInfo `json:"BlockInfos"`
+type CreateFileNameNodeResponse struct {
+	BlockInfos []BlockInfo `json:"BlockInfos"`
 	Err        string      `json:"Error"`
 }
 
-type storeBlockRequest struct {
+type StoreBlockRequest struct {
 	Block   string   `json:"Block"` // base64 encoded block data
 	DnList  []string `json:"DataNodeList"`
 	BlockId string   `json:"BlockId"`
 }
 
-type storeBlockResponse struct {
+type StoreBlockResponse struct {
 	Err string `json:"Error"`
 }
 
 // Get
 
-type getFileNameNodeRequest struct {
+type GetFileNameNodeRequest struct {
 	FileName string `json:"FileName"`
 }
 
-type getFileNameNodeResponse struct {
-	BlockInfos []blockInfo `json:"BlockInfos"`
+type GetFileNameNodeResponse struct {
+	BlockInfos []BlockInfo `json:"BlockInfos"`
 	Err        string      `json:"Error"`
 }
 
-type getBlockRequest struct {
+type GetBlockRequest struct {
 	BlockId string `json:"BlockId"`
 }
 
-type getBlockResponse struct {
+type GetBlockResponse struct {
 	Block string `json:"Block"` // base64 encoded block data
 	Err   string `json:"Error"`
 }
 
 // Helpers
 
-type blockInfo struct {
+type BlockInfo struct {
 	BlockId string   `json:"BlockId"`
 	DnList  []string `json:"DataNodeList"`
 }
 
-func makeStoreBlockRequest(block string, blockInfo blockInfo) storeBlockRequest {
-	return storeBlockRequest{
+func MakeStoreBlockRequest(block string, blockInfo BlockInfo) StoreBlockRequest {
+	return StoreBlockRequest{
 		Block:   block,
 		DnList:  blockInfo.DnList,
 		BlockId: blockInfo.BlockId,

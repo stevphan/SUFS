@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"shared"
 	"strings"
 )
 
@@ -29,7 +30,7 @@ func doRequestTesting() {
 
 	dnList := []string{"1.2.3.4", "5.6.7.8", "10.0.0.7"}
 
-	originalObject := storeBlockRequest{
+	originalObject := shared.StoreBlockRequest{
 		Block:   "actualblock",
 		DnList:  dnList,
 		BlockId: "blockid_123",
@@ -74,7 +75,7 @@ func doResponseTesting() {
 		Body: ioutil.NopCloser(bytes.NewBufferString(jsonString)),
 	}
 
-	inflatedObject := storeBlockResponse{}
+	inflatedObject := shared.StoreBlockResponse{}
 	err := objectFromResponse(&res, &inflatedObject)
 
 	log.Printf("object: %v\nerror: %v", inflatedObject, err)
@@ -82,6 +83,9 @@ func doResponseTesting() {
 }
 
 func main() {
+	doRequestTesting()
+	return
+
 	log.SetPrefix("- ")
 	log.SetFlags(LogFlagFilenameAndLine)
 
