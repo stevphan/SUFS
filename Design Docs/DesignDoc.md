@@ -178,6 +178,12 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
 
 ![Data Node Bootstrap Sequence Diagram](Data_Node_Bootstrap_Sequence_Diagram.png)
 
+### Data Node
+
+The StoreBlock API is used by the CLI to store new blocks and by the Name Node for fault recovery.
+
+The Data Node will store the block if it's address is in the Data Node list in the StoreBlock API. Then, it will remove it's address from the list and forward the request to another Data Node also in that list.
+
 ## Technologies and Tools Used
 
 * Go
@@ -207,9 +213,11 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
 * Block Report
   * timeouts in Name Node
   * send block report from Data Node
+* End-to-end testing
+  * successfully created a file (localhost only)
 
 ### Needs to be started
 
 * Heartbeat from Data Nodes to Name Node
+* List Data Nodes Command
 * AWS Setup
-* End-to-end testing
