@@ -2,14 +2,13 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"net/http"
+	"os"
 	"shared"
 )
 
@@ -38,17 +37,6 @@ func exists(path string) (bool) {
 }
 
 
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
-
 func convertObjectToJson(object interface{}) ([]byte, error) {
 	data, err := json.Marshal(object)
 	if err != nil {
@@ -58,7 +46,7 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 	return data, nil
 }
 
-func get_block(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
+func get_block(write http.ResponseWriter, req *http.Request) { // returns block requested from the current DN
 	blockReq := shared.GetBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&blockReq)
@@ -68,12 +56,14 @@ func get_block(write http.ResponseWriter, req *http.Request)  { // returns block
 
 	fmt.Printf("Received: %s\n", blockReq)
 
-	tempPath := folderPath + blockReq.BlockId
+	tempPath := directory + blockReq.BlockId
 
 	returnData := getResponse{
 		Block: "",
 		Error: "",
 	}
+
+
 
 	if exists(tempPath) {
 		fmt.Println("found " + blockReq.BlockId)

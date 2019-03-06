@@ -25,10 +25,6 @@ func remove(s []int, i int) []int {
 }
 
 
-type storeBlockResponse struct {
-	Error string `json:"Error"`
-}
-
 func isError(err error) bool {
 	if err != nil {
 		fmt.Println(err.Error())
@@ -90,10 +86,13 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	fmt.Printf("Received: %s\n", storeReq)
 	fmt.Println("")
 
-	path := folderPath + storeReq.BlockId
 
-	// FOR TESTING ... will be IP addr later and wont be able to
-	s3address := "test_node_2.aws.com"
+	path := directory + storeReq.BlockId
+
+	// does blocks exists first and foremost? if not, create /blocks/
+	if !exists(directory) {
+		os.MkdirAll(directory, os.ModePerm)
+	}
 
 	// if list is empty, then just stop
 	if len(storeReq.DnList) < 1 {
@@ -133,7 +132,6 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	// forward without self in DnList
 	shared.StoreSingleBlock(storeReq)
 
-	fmt.Println()
 
 	/*
 	on success, drop self from array
