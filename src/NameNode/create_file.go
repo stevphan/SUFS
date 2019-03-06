@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	blockSize int64 = 67108864 // assuming bytes
+	blockSize int64 = 67108864 // assuming bytes, this is equal to 64 MB
 )
 
 func createFile(write http.ResponseWriter, req *http.Request) { //needs to return list of dataNodes per block

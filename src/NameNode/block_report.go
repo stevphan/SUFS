@@ -21,10 +21,13 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		dnList = append(dnList, myReq.MyIp)
 		numDn++
 	} else {
-		for i := 0; i < numDn; i++ {
+		//for i := 0; i < numDn; i++ {
+		i := 0
+		for !found && i < numDn {
 			if dnList[i] == myReq.MyIp {
 				found = true
 			}
+			i++
 		}
 	}
 	if !found {
@@ -57,7 +60,6 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 				}
 			}
 		}
-		//TODO what to do if the file doesn't exist
 	}
 	writeFilesToDisk()
 }
