@@ -20,7 +20,7 @@ func getFile(getFileArgs []string) {
 
 func parseGetFileArgs(args []string) (nameNodeAddr, filename, saveLocation string) {
 	verboseMessage := fmt.Sprintf("get file with args: %v", args)
-	verbosePrintln(verboseMessage)
+	shared.VerbosePrintln(verboseMessage)
 
 	if len(args) != 3 {
 		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <save-location>")
@@ -34,14 +34,14 @@ func parseGetFileArgs(args []string) (nameNodeAddr, filename, saveLocation strin
 }
 
 func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse shared.GetFileNameNodeResponse) {
-	verbosePrintln("Attempting to get file from name node")
+	shared.VerbosePrintln("Attempting to get file from name node")
 
 	getFileRequest := shared.GetFileNameNodeRequest{
 		FileName: filename,
 	}
 	sendRequestToNameNode(nameNodeAddr, "get-file", getFileRequest, &getFileResponse)
 
-	verbosePrintln("Successfully got a file from the name node")
+	shared.VerbosePrintln("Successfully got a file from the name node")
 
 	return
 }
@@ -61,7 +61,7 @@ func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string)
 }
 
 func getSingleBlock(info shared.BlockInfo) string {
-	verbosePrintln("Attempting to get block from data node")
+	shared.VerbosePrintln("Attempting to get block from data node")
 
 	// for _, dn := range info.DnList {
 	// 	getBlockRequest := getBlockRequest{
@@ -78,7 +78,7 @@ func getSingleBlock(info shared.BlockInfo) string {
 	// 	// }
 	// }
 
-	verbosePrintln("Successfully got block from a data node")
+	shared.VerbosePrintln("Successfully got block from a data node")
 
 	return ""
 }

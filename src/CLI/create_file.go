@@ -23,7 +23,7 @@ func createFile(createFileArgs []string) {
 
 func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	verboseMessage := fmt.Sprintf("create file with args: %v", args)
-	verbosePrintln(verboseMessage)
+	shared.VerbosePrintln(verboseMessage)
 
 	if len(args) != 3 {
 		log.Fatal("Input Error: Must use create-file in the following format 'CLI create-file <name-node-address> <filename> <s3-url>")
@@ -37,10 +37,10 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 }
 
 func downloadFile(url string) []byte {
-	verbosePrintln("Downloading file from S3 bucket")
+	shared.VerbosePrintln("Downloading file from S3 bucket")
 
 	res, err := http.Get(url)
-	checkErrorAndFatal("Unable to download file from S3 bucket URL", err)
+	shared.CheckErrorAndFatal("Unable to download file from S3 bucket URL", err)
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
@@ -53,15 +53,15 @@ func downloadFile(url string) []byte {
 
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		checkErrorAndFatal("Unable to read bytes from S3 response body", err)
+		shared.CheckErrorAndFatal("Unable to read bytes from S3 response body", err)
 	}
 
-	verbosePrintln("Successfully downloaded file")
+	shared.VerbosePrintln("Successfully downloaded file")
 	return data
 }
 
 func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse shared.CreateFileNameNodeResponse) {
-	verbosePrintln("Attempting to create file on name node")
+	shared.VerbosePrintln("Attempting to create file on name node")
 
 	createFileRequest := shared.CreateFileNameNodeRequest{
 		FileName: filename,
@@ -69,7 +69,7 @@ func createFileInNameNode(nameNodeAddr, filename, size string) (createFileRespon
 	}
 	sendRequestToNameNode(nameNodeAddr, "create-file", createFileRequest, &createFileResponse)
 
-	verbosePrintln("Successfully created a file on the name node")
+	shared.VerbosePrintln("Successfully created a file on the name node")
 
 	return
 }
@@ -96,57 +96,18 @@ func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks
 		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'", len(createFileResponse.BlockInfos), len(blocks))
 	}
 
-	verbosePrintln("Attempting to store all blocks")
+	shared.VerbosePrintln("Attempting to store all blocks")
 
 	for i, blockInfo := range createFileResponse.BlockInfos {
 		storeBlockReq := shared.MakeStoreBlockRequest(blocks[i], blockInfo)
-		successful := storeSingleBlock(storeBlockReq)
+		successful := shared.StoreSingleBlock(storeBlockReq)
 
-		verbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
+		shared.VerbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
 
 		if !successful {
 			log.Fatalf("Unable to store block '%s' on any data node", blockInfo.BlockId)
 		}
 	}
 
-	verbosePrintln("Successfully stored all blocks to a data node")
-}
-
-func storeSingleBlock(storeBlockReq shared.StoreBlockRequest) bool {
-	for _, dataNodeIp := range storeBlockReq.DnList {
-		success := storeSingleToDataNode(storeBlockReq, dataNodeIp)
-		if success {
-			return true
-		}
-	}
-
-	return false
-}
-
-func storeSingleToDataNode(storeBlockReq shared.StoreBlockRequest, dataNodeIp string) bool {
-	verbosePrintln(fmt.Sprintf("Attempting to save block to data node '%s'", dataNodeIp))
-
-	dataNodeUrl := "http://" + dataNodeIp + "/storeBlock"
-	buffer, err := convertObjectToJsonBuffer(storeBlockReq)
-	if err != nil {
-		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
-		return false
-	}
-
-	res, err := http.Post(dataNodeUrl, "application/json", buffer)
-	if err != nil {
-		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
-		return false
-	}
-
-	storeBlockRes := shared.StoreBlockResponse{}
-	err = objectFromResponse(res, &storeBlockRes)
-	checkErrorAndFatal("Unable to parse response", err)
-
-	if storeBlockRes.Err != "" {
-		verbosePrintln(fmt.Sprint("Error from data node:", storeBlockRes.Err))
-		return false
-	}
-
-	return true
+	shared.VerbosePrintln("Successfully stored all blocks to a data node")
 }

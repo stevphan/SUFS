@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+	"shared"
 )
 
 func contains(s []string, e string) bool {
@@ -27,57 +23,16 @@ func min(a, b int) int {
 	return b
 }
 
-func verbosePrintln(s string) {
-	if verbose {
-		fmt.Println(s)
-	}
-}
-
-func checkErrorAndFatal(description string, err error) {
-	if err != nil {
-		log.Fatal(description+":", err)
-	}
-}
-
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
-
-func objectFromResponse(res *http.Response, object interface{}) error {
-	defer res.Body.Close()
-
-	data := []byte{}
-	if res.Body != nil {
-
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-
-		data = body
-	}
-
-	err := json.Unmarshal(data, object)
-	return err
-}
-
 func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, response interface{}) {
-	buffer, err := convertObjectToJsonBuffer(request)
-	checkErrorAndFatal("Error while communicating with the name node:", err)
+	buffer, err := shared.ConvertObjectToJsonBuffer(request)
+	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
 	url := "http://" + nameNodeAddr + "/" + path
 	res, err := http.Post(url, "application/json", buffer)
-	checkErrorAndFatal("Error while communicating with the name node:", err)
+	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
-	err = objectFromResponse(res, response)
-	checkErrorAndFatal("Unable to parse response", err)
+	err = shared.ObjectFromResponse(res, response)
+	shared.CheckErrorAndFatal("Unable to parse response", err)
 
 	return
 }
