@@ -82,9 +82,6 @@ func doResponseTesting() {
 }
 
 func main() {
-	doRequestTesting()
-	return
-
 	log.SetPrefix("- ")
 	log.SetFlags(LogFlagFilenameAndLine)
 
