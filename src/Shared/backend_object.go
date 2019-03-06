@@ -42,6 +42,12 @@ type GetBlockResponse struct {
 	Err   string `json:"Error"`
 }
 
+//Block Report
+type BlockReportRequest struct {
+	MyIp string			`json:"MyIp"`
+	BlockId []string 	`json:"BlockId"`
+}
+
 // Helpers
 
 type BlockInfo struct {
