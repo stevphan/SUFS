@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"shared"
 	"strconv"
 	"strings"
 )
@@ -13,7 +14,7 @@ const (
 
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
 	decoder := json.NewDecoder(req.Body)
-	myReq := blockReportRequest{}
+	myReq := shared.BlockReportRequest{}
 	err := decoder.Decode(&myReq)
 	errorPrint(err)
 
