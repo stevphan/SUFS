@@ -40,7 +40,7 @@ func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse shared.Ge
 	getFileRequest := shared.GetFileNameNodeRequest{
 		FileName: filename,
 	}
-	sendRequestToNameNode(nameNodeAddr, "get-file", getFileRequest, &getFileResponse)
+	sendRequestToNameNode(nameNodeAddr, "getFile", getFileRequest, &getFileResponse)
 
 	shared.VerbosePrintln("Successfully got a file from the name node")
 
