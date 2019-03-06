@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -98,4 +99,5 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	errorPrint(err)
 	write.Header().Set("Content-Type", "application/json")
 	write.Write(js)
+	log.Println("FILE CREATED")
 }
