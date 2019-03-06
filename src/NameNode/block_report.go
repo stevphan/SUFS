@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,6 +36,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		numDn++
 	}
 
+	//TODO make sure files have the same number of blocks
 	var ipFound bool
 	for i := 0; i < len(myReq.BlockId); i++ {
 		ipFound = false
@@ -45,6 +47,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		found, fileIndex := findFile(fileName)
 		if found {
 			for j := 0; j < repFact; j++ {
+				fmt.Println(files)
 				if myReq.MyIp == files.MetaData[fileIndex].BlockLists[blockId].DnList[j]{
 					ipFound = true
 				}
@@ -61,6 +64,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 			}
 		}
 	}
+	fmt.Println(files)
 	writeFilesToDisk()
 }
 
