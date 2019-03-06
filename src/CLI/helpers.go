@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+	"shared"
 )
 
 func contains(s []string, e string) bool {
@@ -27,45 +23,18 @@ func min(a, b int) int {
 	return b
 }
 
-func verbosePrintln(s string) {
-	if verbose {
-		fmt.Println(s)
-	}
-}
+func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, response interface{}) {
+	buffer, err := shared.ConvertObjectToJsonBuffer(request)
+	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
-func checkErrorAndFatal(description string, err error) {
-	if err != nil {
-		log.Fatal(description+":", err)
-	}
-}
+	url := "http://" + nameNodeAddr + "/" + path
+	res, err := http.Post(url, "application/json", buffer)
+	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
+	err = shared.ObjectFromResponse(res, response)
+	shared.CheckErrorAndFatal("Unable to parse response", err)
 
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
-
-func objectFromResponse(res *http.Response, object interface{}) error {
-	defer res.Body.Close()
-
-	data := []byte{}
-	if res.Body != nil {
-
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-
-		data = body
-	}
-
-	err := json.Unmarshal(data, object)
-	return err
+	return
 }
 
 type LogFlag int
