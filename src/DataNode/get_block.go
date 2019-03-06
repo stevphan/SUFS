@@ -57,9 +57,6 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 	return data, nil
 }
 
-// DN will have it's own S3 URL to save to, so for now just save to a folder on disk
-// TODO:
-
 func get_block(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
 	blockId := getRequest{}
 	decoder := json.NewDecoder(req.Body)
@@ -82,30 +79,25 @@ func get_block(write http.ResponseWriter, req *http.Request)  { // returns block
 		file, _ := os.Open(tempPath)
 		reader := bufio.NewReader(file)
 		content, _ := ioutil.ReadAll(reader)
-
 		// encode base64
 		returnData.Block = base64.StdEncoding.EncodeToString(content)
-
-		//for testing, print encoded values
-		fmt.Println("ENCODED: " + returnData.Block)
-
-		// check if decode works by testing decoded value
-		decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
-		if (err != nil) {}
-
-		// testing, print decoded values (expected: asdf)
-		fmt.Println("decoded: " + string(decoded))
+		////for testing, print encoded values
+		//fmt.Println("ENCODED: " + returnData.Block)
+		//
+		//// check if decode works by testing decoded value
+		//decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
+		//if (err != nil) {}
+		//
+		//// testing, print decoded values (expected: asdf)
+		//fmt.Println("decoded: " + string(decoded))
 	} else {
-		fmt.Println("did not find " + blockId.BlockId)
 		returnData.Error = "404"
 	}
 
-	//returnContent, _ := convertObjectToJsonBuffer(returnData)
 	js, err := convertObjectToJson(returnData)
 	log.Print(err)
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
-	fmt.Println("looks good, sending base64 encoded JSON payload...")
 	return
 	//	TODO: figure out how to return a JSON payload... embarassing. feels like it was wrong?
 }
