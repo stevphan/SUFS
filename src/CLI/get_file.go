@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -83,17 +84,34 @@ func getSingleBlock(info shared.BlockInfo) string {
 	return ""
 }
 
-// func getSingleBlockFromDataNode() string {
-// 	buffer, err := convertObjectToJsonBuffer(request)
-// 	checkErrorAndFatal("Error while communicating with the node:", err)
+func getSingleBlockFromDataNode(request shared.GetBlockRequest, nodeAddr string) (string, bool) {
+	buffer, err := shared.ConvertObjectToJsonBuffer(request)
+	if err != nil {
+		log.Println("Error while communicating with the data node:", err)
+		return "", false
+	}
 
-// 	url := "http://" + nodeAddr + path
-// 	res, err := http.Post(url, "application/json", buffer)
-// 	checkErrorAndFatal("Error while communicating with the node:", err)
+	url := "http://" + nodeAddr + "/store-block"
+	res, err := http.Post(url, "application/json", buffer)
+	if err != nil {
+		log.Println("Error while communicating with the data node:", err)
+		return "", false
+	}
 
-// 	err = objectFromResponse(res, response)
-// 	checkErrorAndFatal("Unable to parse response", err)
-// }
+	response := shared.GetBlockResponse{}
+	err = shared.ObjectFromResponse(res, &response)
+	if err != nil {
+		log.Println("Unable to parse response from the data node:", err)
+		return "", false
+	}
+
+	if response.Err != "" {
+		log.Println("Unable to parse response from the data node:", err)
+		return "", false
+	}
+
+	return response.Block, true
+}
 
 func reconstructBlocks(blocks []string) (data []byte) {
 	data = []byte{}
