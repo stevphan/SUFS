@@ -1,3 +1,5 @@
+# SUFS Design Document
+
 ## Component API Calls
 
 We are using RESTful endpoints to communicate between the components. Only JSON is supported.
@@ -193,6 +195,7 @@ The Data Node will store the block if it's address is in the Data Node list in t
   * [GitHub Repository](https://github.com/Rivukis/Cloud-Computing-Project)
 
 ## System Parameters
+
 * Block Size: 64MB
 * Replication Factor: 3
 * Total DataNode: 4
