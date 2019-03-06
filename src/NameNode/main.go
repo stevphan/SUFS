@@ -22,13 +22,9 @@ possibly use as argument during init (i.e. when booting main look for IP and por
 func main() {
 	readFilesFromDisk()
 	//for testing
-	dnList = append(dnList, "Hello")
+	dnList = append(dnList, "localhost:8081")
 	numDn++
-	dnList = append(dnList, "Hello1")
-	numDn++
-	dnList = append(dnList, "Hello2")
-	numDn++
-	dnList = append(dnList, "Hello3")
+	dnList = append(dnList, "localhost:8082")
 	numDn++
 
 	http.HandleFunc("/createFile", createFile)

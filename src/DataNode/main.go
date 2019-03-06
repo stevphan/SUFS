@@ -13,7 +13,7 @@ import (
 
 var (
 	s3address string
-	directory = "/Users/stxv/blocks/"
+	directory = "/blocks/"
 )
 
 func main() {
