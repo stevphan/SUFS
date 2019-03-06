@@ -43,9 +43,14 @@ type GetBlockResponse struct {
 }
 
 //Block Report
+
 type BlockReportRequest struct {
-	MyIp string			`json:"MyIp"`
-	BlockId []string 	`json:"BlockId"`
+	MyIp     string   `json:"MyIp"`
+	BlockIds []string `json:"BlockIds"`
+}
+
+type BlockReportResponse struct {
+	Err string `json:"Error"`
 }
 
 // Helpers

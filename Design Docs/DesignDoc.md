@@ -1,4 +1,4 @@
-## API Calls
+## Component API Calls
 
 We are using RESTful endpoints to communicate between the components. Only JSON is supported.
 
@@ -57,15 +57,28 @@ path: "/getFile"
 }
 ```
 
-#### Block Report
+#### Block Report Request
 
 path: "/blockReport"
 
-# TODO: finish me
+```json
+{
+    "MyIp": string, // the public IP address of the sending Data Node
+    "BlockIds": []string // the list of IDs of each block stored on the sending Data Node
+}
+```
+
+#### Block Report Response
+
+```json
+{
+    "Error": string // description of the error, empty means no error
+}
+```
 
 #### Heartbeat
 
-# TODO: finish me
+<span style="color:red">FINISH ME</span>
 
 ### Data Node API
 
