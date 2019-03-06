@@ -47,21 +47,22 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		errorPrint(err)
 		found, fileIndex := findFile(fileName)
 		if found {
-			for j := 0; j < repFact; j++ {
+			for j := 0; j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); j++ {
 				fmt.Println(files)
 				if myReq.MyIp == files.MetaData[fileIndex].BlockLists[blockId].DnList[j]{
 					ipFound = true
 				}
 			}
 			if !ipFound {
-				j := 0
-				for !ipFound && j < repFact{
+				/*j := 0
+				for !ipFound && j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList){
 					if files.MetaData[fileIndex].BlockLists[blockId].DnList[j] == "" {
 						files.MetaData[fileIndex].BlockLists[blockId].DnList[j] = myReq.MyIp
 						ipFound = true
 					}
 					j++
-				}
+				}*/
+				files.MetaData[fileIndex].BlockLists[blockId].DnList = append(files.MetaData[fileIndex].BlockLists[blockId].DnList, myReq.MyIp)
 			}
 		}
 	}

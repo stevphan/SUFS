@@ -50,8 +50,8 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 	for i := 0; i < files.MetaData[fileIndex].NumBlocks; i++ {
 		blockList := shared.BlockInfo{}
 		blockList.BlockId = myReq.FileName + "_" + strconv.Itoa(i)
-		blockList.DnList = make([]string, repFact)
-		for j := 0; j < repFact; j++ {
+		blockList.DnList = make([]string, len(files.MetaData[fileIndex].BlockLists[i].DnList))
+		for j := 0; j < len(files.MetaData[fileIndex].BlockLists[i].DnList); j++ {
 			blockList.DnList[j] = files.MetaData[fileIndex].BlockLists[i].DnList[j]
 		}
 		myRes.BlockInfos[i] = blockList

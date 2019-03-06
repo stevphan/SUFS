@@ -12,7 +12,7 @@ type fileMetaData struct {
 }
 
 type blockList struct {
-	DnList [repFact]string //stores IP of DNs it is stored at
+	DnList []string //stores IP of DNs it is stored at
 }
 
 /*type createRequest struct{

@@ -26,7 +26,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		for i := 0; i < files.NumFiles; i++ {
 			if files.MetaData[i].FileName == myReq.FileName {
 				//TODO fail write (DONE?)
-				myRes := shared.GetFileNameNodeResponse{}
+				myRes := shared.CreateFileNameNodeResponse{}
 				js, err := convertObjectToJson(myRes)
 				errorPrint(err)
 				write.Header().Set("Content-Type", "application/json")
@@ -48,7 +48,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	var replicationFactor int
 	if numDn == 0 { //There are no DN
 		//TODO fail write (DONE?)
-		myRes := shared.GetFileNameNodeResponse{}
+		myRes := shared.CreateFileNameNodeResponse{}
 		js, err := convertObjectToJson(myRes)
 		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")
@@ -62,7 +62,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 
 	//This chooses DN for each block
 	j := 0 //index of the DataNode list
-	myRes := shared.GetFileNameNodeResponse{}
+	myRes := shared.CreateFileNameNodeResponse{}
 	myRes.BlockInfos = make([]shared.BlockInfo, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
 		blockList := shared.BlockInfo{}
@@ -85,16 +85,16 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	fileToStore.BlockLists = make([]blockList, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
 		blockList := blockList{}
-		for j := 0; j < repFact; j++ {
+		/*for j := 0; j < repFact; j++ {
 			blockList.DnList[j] = ""
-		}
+		}*/
 		fileToStore.BlockLists[i] = blockList
 	}
 	files.NumFiles++
 	files.MetaData = append(files.MetaData, fileToStore)
 	writeFilesToDisk()
-
-	//Returns myRes which is a shared.GetFileNameNodeResponse
+	
+	//Returns myRes which is a shared.CreateFileNameNodeResponse
 	js, err := convertObjectToJson(myRes)
 	errorPrint(err)
 	write.Header().Set("Content-Type", "application/json")

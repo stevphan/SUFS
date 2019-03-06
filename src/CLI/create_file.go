@@ -69,6 +69,10 @@ func createFileInNameNode(nameNodeAddr, filename, size string) (createFileRespon
 	}
 	sendRequestToNameNode(nameNodeAddr, "createFile", createFileRequest, &createFileResponse)
 
+	if createFileResponse.Err != "" {
+		log.Fatal(createFileResponse.Err)
+	}
+
 	shared.VerbosePrintln("Successfully created a file on the name node")
 
 	return
