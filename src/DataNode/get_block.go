@@ -58,6 +58,7 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 }
 
 // DN will have it's own S3 URL to save to, so for now just save to a folder on disk
+// TODO:
 
 func get_block(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
 	blockId := getRequest{}
@@ -90,14 +91,10 @@ func get_block(write http.ResponseWriter, req *http.Request)  { // returns block
 
 		// check if decode works by testing decoded value
 		decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
-		if (err != nil) {
+		if (err != nil) {}
 
-		}
 		// testing, print decoded values (expected: asdf)
 		fmt.Println("decoded: " + string(decoded))
-
-
-
 	} else {
 		fmt.Println("did not find " + blockId.BlockId)
 		returnData.Error = "404"
@@ -108,8 +105,7 @@ func get_block(write http.ResponseWriter, req *http.Request)  { // returns block
 	log.Print(err)
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
+	fmt.Println("looks good, sending base64 encoded JSON payload...")
 	return
 	//	TODO: figure out how to return a JSON payload... embarassing. feels like it was wrong?
-
-
 }

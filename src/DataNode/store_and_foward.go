@@ -17,15 +17,15 @@ DataNodeList
 
  // passed in JSON payloads
 
-type saveBlockRequest struct{
+type storeBlockRequest struct{
 	Block string `json:"Block"`
-	DataNodeList[] string `json:"DataNodeList"`
+	DnList[] string `json:"DataNodeList"`
 	BlockId string `json:"BlockId"`
 
 }
 
 
-type saveBlockResponse struct {
+type storeBlockResponse struct {
 	Error string `json:"Error"`
 }
 
@@ -34,7 +34,7 @@ func isError(err error) bool {
 		fmt.Println(err.Error())
 	}
 
-	return (err != nil)
+	return err != nil
 }
 
 func createFile(path string) {
@@ -68,8 +68,8 @@ func writeFile(path string, data string) {
 	fmt.Println("==> done writing to file")
 }
 
-func store_and_foward(write http.ResponseWriter, req *http.Request)  { // returns block requested from the current DN
-	storeReq := saveBlockRequest{}
+func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores Block data into current DataNode, and forwards it to the next DataNode on the list
+	storeReq := storeBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&storeReq)
 	if err != nil {
@@ -82,16 +82,15 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // return
 	path := s3address + storeReq.BlockId
 
 	// check if file exists already
-	if (exists(path)) { // for debug purposes, otherwise dont print anything
+	if exists(path) { // for debug purposes, otherwise dont print anything
 		fmt.Println("FOUND! ... dont do anything")
-
 		return
 	} else {
 		fmt.Println("Block not in Data Node! Saving...")
 		decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
 
-		if isError(err) { // if there is an error
-			errorReq := saveBlockResponse{}
+		if isError(err) { // if there is an error send a response
+			errorReq := storeBlockResponse{}
 			errorReq.Error = "some_error"
 			js, err := convertObjectToJson(errorReq)
 			log.Print(err)
@@ -105,8 +104,10 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // return
 		writeFile(path, string(decoded))
 	}
 
-	//	TODO: figure out 'fowarding'
-	// 	TODO: figure out framework? could be a massive misunderstanding on my part...
+
+
+	//	TODO: figure out 'forwarding'
 	//	TODO: if block already exists, what about overwriting old data (i.e. adding a line to a file)? should I write anyway?
+	// if I have the address/location of each DN, maybe insert directly into the DN??? would have to set up and test if possible [
 
 }
