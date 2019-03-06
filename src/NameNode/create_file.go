@@ -2,29 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
+	"math"
 	"net/http"
 	"strconv"
 )
 
 const (
-	blockSize int64 = 67108864 // assuming bytes
+	blockSize int64 = 67108864 // assuming bytes, this is equal to 64 MB
 )
-
-type createRequest struct{
-	Filename string `json:"FileName"`
-	Size string		`json:"Size"`
-}
-
-type createResponse struct {
-	BlockId string	`json:"BlockId"`
-	DnList []string `json:"DnList"`
-}
-
-type responseObj struct { //What is returned to cli
-	Blocks []createResponse
-}
 
 func createFile(write http.ResponseWriter, req *http.Request) { //needs to return list of dataNodes per block
 	var blocksRequired int
@@ -32,24 +17,16 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	decoder := json.NewDecoder(req.Body)
 	myReq := createRequest{}
 	err := decoder.Decode(&myReq)
-	log.Println(err)
+	errorPrint(err)
 
 	//Checks if the file exist
-	if files.numFiles < 1 {
-		//TODO fail write (DONE?)
-		myRes := responseObj{}
-		js, err := convertObjectToJson(myRes)
-		log.Print(err)
-		write.Header().Set("Content-Type", "application/json")
-		write.Write(js)
-		return
-	} else {
-		for i := 0; i < files.numFiles; i++ {
-			if files.metaData[i].fileName == myReq.Filename {
+	if files.NumFiles > 0 {
+		for i := 0; i < files.NumFiles; i++ {
+			if files.MetaData[i].FileName == myReq.Filename {
 				//TODO fail write (DONE?)
 				myRes := responseObj{}
 				js, err := convertObjectToJson(myRes)
-				log.Print(err)
+				errorPrint(err)
 				write.Header().Set("Content-Type", "application/json")
 				write.Write(js)
 				return
@@ -57,37 +34,34 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		}
 	}
 
+	//Finds the blocks required
 	size, err := strconv.ParseInt(myReq.Size, 10, 64)
-	if err != nil {
-		log.Print("Error with converting string to int64")
-		log.Print(err)
-	} else {
-		blocksRequired = int(size/blockSize)
-	}
+	errorPrint(err)
+	temp := float64(size)/float64(blockSize)
+	temp = math.Ceil(temp)
+	blocksRequired = int(temp)
 
-	fmt.Println(blocksRequired)
-
-	//TODO choose DN to send each block to (check size of, choose lowest)
-
+	//TODO choose DN to send each block to (check size of, choose lowest) - not super important
+	//Checks amount of DN vs the replication factor
 	var replicationFactor int
-	j := 0 //index of the DataNode list
-	if numDn == 0 {
+	if numDn == 0 { //There are no DN
 		//TODO fail write (DONE?)
 		myRes := responseObj{}
 		js, err := convertObjectToJson(myRes)
-		log.Print(err)
+		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")
 		write.Write(js)
 		return
-	} else if numDn < repFact {
+	} else if numDn < repFact { //don't have enough DN for replication factor
 		replicationFactor = numDn
-	} else {
+	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
 	}
 
+	//This chooses DN for each block
+	j := 0 //index of the DataNode list
 	myRes := responseObj{}
 	myRes.Blocks = make([]createResponse, blocksRequired)
-
 	for i := 0; i < blocksRequired; i++ {
 		blockList := createResponse{}
 		blockList.BlockId = myReq.Filename + "_" + strconv.Itoa(i)
@@ -102,19 +76,25 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		myRes.Blocks[i] = blockList
 	}
 
-	fmt.Println(myRes)
-	//TODO return the array of createResponse struct (DONE?)
+	//Saves the metadata of the file, nothing in DnList yet
+	fileToStore := fileMetaData{}
+	fileToStore.FileName = myReq.Filename
+	fileToStore.NumBlocks = blocksRequired
+	fileToStore.BlockLists = make([]blockList, blocksRequired)
+	for i := 0; i < blocksRequired; i++ {
+		blockList := blockList{}
+		for j := 0; j < repFact; j++ {
+			blockList.DnList[j] = ""
+		}
+		fileToStore.BlockLists[i] = blockList
+	}
+	files.NumFiles++
+	files.MetaData = append(files.MetaData, fileToStore)
+	writeFilesToDisk()
 
-	//js, err := convertObjectToJsonBuffer(myRes)
-
-	/*js, err := json.Marshal(myRes)
-	if err != nil {
-		http.Error(write, "Error", http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}*/
-
+	//Returns myRes which is a responseObj
 	js, err := convertObjectToJson(myRes)
+	errorPrint(err)
 	write.Header().Set("Content-Type", "application/json")
 	write.Write(js)
 }

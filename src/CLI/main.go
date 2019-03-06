@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"shared"
 	"strings"
 )
 
-var verbose = false
 var useLocalFile = false
 
 const (
@@ -29,13 +29,13 @@ func doRequestTesting() {
 
 	dnList := []string{"1.2.3.4", "5.6.7.8", "10.0.0.7"}
 
-	originalObject := storeBlockRequest{
+	originalObject := shared.StoreBlockRequest{
 		Block:   "actualblock",
 		DnList:  dnList,
 		BlockId: "blockid_123",
 	}
 
-	buffer, err := convertObjectToJsonBuffer(originalObject)
+	buffer, err := shared.ConvertObjectToJsonBuffer(originalObject)
 	jsonString := string(buffer.Bytes())
 
 	log.Printf("json: %s\nerror: %v", jsonString, err)
@@ -74,8 +74,8 @@ func doResponseTesting() {
 		Body: ioutil.NopCloser(bytes.NewBufferString(jsonString)),
 	}
 
-	inflatedObject := storeBlockResponse{}
-	err := objectFromResponse(&res, &inflatedObject)
+	inflatedObject := shared.StoreBlockResponse{}
+	err := shared.ObjectFromResponse(&res, &inflatedObject)
 
 	log.Printf("object: %v\nerror: %v", inflatedObject, err)
 	log.Println("finished")
@@ -86,7 +86,7 @@ func main() {
 	log.SetFlags(LogFlagFilenameAndLine)
 
 	normalArgs, options := parseOsArgs()
-	verbose = contains(options, "v")
+	shared.Verbose = contains(options, "v")
 	useLocalFile = contains(options, "use-local-file")
 
 	if len(normalArgs) == 0 {
@@ -98,10 +98,10 @@ func main() {
 	userAction := normalArgs[0]
 	switch userAction {
 	case actionCreateFile:
-		verbosePrintln("User wants to create a file")
+		shared.VerbosePrintln("User wants to create a file")
 		createFile(normalArgs[1:])
 	case actionGetFile:
-		verbosePrintln("User wants to get a file")
+		shared.VerbosePrintln("User wants to get a file")
 		getFile(normalArgs[1:])
 	default:
 		log.Fatalf("Incorrect command. Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)

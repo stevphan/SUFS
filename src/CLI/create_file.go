@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"shared"
 )
 
 func createFile(createFileArgs []string) {
@@ -13,24 +14,19 @@ func createFile(createFileArgs []string) {
 
 	fileData := downloadFile(s3Url)
 
-	createFileRequest := createFileNameNodeRequest{
-		FileName: filename,
-		Size:     fmt.Sprintf("%d", len(fileData)),
-	}
-	createFileResponse := createFileInNameNode(nameNodeAddr, createFileRequest)
+	fileSize := fmt.Sprintf("%d", len(fileData))
+	createFileResponse := createFileInNameNode(nameNodeAddr, filename, fileSize)
 
 	blocks := makeBlocks(fileData)
 	storeAllBlocks(createFileResponse, blocks)
-
-	return
 }
 
 func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	verboseMessage := fmt.Sprintf("create file with args: %v", args)
-	verbosePrintln(verboseMessage)
+	shared.VerbosePrintln(verboseMessage)
 
 	if len(args) != 3 {
-		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <s3-url>")
+		log.Fatal("Input Error: Must use create-file in the following format 'CLI create-file <name-node-address> <filename> <s3-url>")
 	}
 
 	nameNodeAddr = args[0]
@@ -41,10 +37,10 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 }
 
 func downloadFile(url string) []byte {
-	verbosePrintln("Downloading file from S3 bucket")
+	shared.VerbosePrintln("Downloading file from S3 bucket")
 
 	res, err := http.Get(url)
-	checkErrorAndFatal("Unable to download file from S3 bucket URL", err)
+	shared.CheckErrorAndFatal("Unable to download file from S3 bucket URL", err)
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
@@ -57,27 +53,23 @@ func downloadFile(url string) []byte {
 
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		checkErrorAndFatal("Unable to read bytes from S3 response body", err)
+		shared.CheckErrorAndFatal("Unable to read bytes from S3 response body", err)
 	}
 
-	verbosePrintln("Successfully downloaded file")
+	shared.VerbosePrintln("Successfully downloaded file")
 	return data
 }
 
-func createFileInNameNode(nameNodeAddr string, request createFileNameNodeRequest) (createFileResponse createFileNameNodeResponse) {
-	verbosePrintln("Attempting to create file on name node")
+func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse shared.CreateFileNameNodeResponse) {
+	shared.VerbosePrintln("Attempting to create file on name node")
 
-	nameNodeUrl := "http://" + nameNodeAddr + "/create-file"
-	buffer, err := convertObjectToJsonBuffer(request)
-	checkErrorAndFatal("Error while communicating to the name node:", err)
+	createFileRequest := shared.CreateFileNameNodeRequest{
+		FileName: filename,
+		Size:     size,
+	}
+	sendRequestToNameNode(nameNodeAddr, "create-file", createFileRequest, &createFileResponse)
 
-	res, err := http.Post(nameNodeUrl, "application/json", buffer)
-	checkErrorAndFatal("Error while communicating to the name node:", err)
-
-	err = objectFromResponse(res, &createFileResponse)
-	checkErrorAndFatal("Unable to parse response", err)
-
-	verbosePrintln("Successfully created a file on the name node")
+	shared.VerbosePrintln("Successfully created a file on the name node")
 
 	return
 }
@@ -99,62 +91,23 @@ func makeBlocks(fileData []byte) []string {
 	return blocks
 }
 
-func storeAllBlocks(createFileResponse createFileNameNodeResponse, blocks []string) {
+func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks []string) {
 	if len(createFileResponse.BlockInfos) != len(blocks) {
 		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'", len(createFileResponse.BlockInfos), len(blocks))
 	}
 
-	verbosePrintln("Attempting to store all blocks")
+	shared.VerbosePrintln("Attempting to store all blocks")
 
 	for i, blockInfo := range createFileResponse.BlockInfos {
-		storeBlockReq := makeStoreBlockRequest(blocks[i], blockInfo)
-		successful := storeSingleBlock(storeBlockReq)
+		storeBlockReq := shared.MakeStoreBlockRequest(blocks[i], blockInfo)
+		successful := shared.StoreSingleBlock(storeBlockReq)
 
-		verbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
+		shared.VerbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
 
 		if !successful {
 			log.Fatalf("Unable to store block '%s' on any data node", blockInfo.BlockId)
 		}
 	}
 
-	verbosePrintln("Successfully stored all blocks to a data node")
-}
-
-func storeSingleBlock(storeBlockReq storeBlockRequest) bool {
-	for _, dataNodeIp := range storeBlockReq.DnList {
-		success := storeSingleToDataNode(storeBlockReq, dataNodeIp)
-		if success {
-			return true
-		}
-	}
-
-	return false
-}
-
-func storeSingleToDataNode(storeBlockReq storeBlockRequest, dataNodeIp string) bool {
-	verbosePrintln(fmt.Sprintf("Attempting to save block to data node '%s'", dataNodeIp))
-
-	dataNodeUrl := "http://" + dataNodeIp + "/storeBlock"
-	buffer, err := convertObjectToJsonBuffer(storeBlockReq)
-	if err != nil {
-		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
-		return false
-	}
-
-	res, err := http.Post(dataNodeUrl, "application/json", buffer)
-	if err != nil {
-		verbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
-		return false
-	}
-
-	storeBlockRes := storeBlockResponse{}
-	err = objectFromResponse(res, &storeBlockRes)
-	checkErrorAndFatal("Unable to parse response", err)
-
-	if storeBlockRes.Err != "" {
-		verbosePrintln(fmt.Sprint("Error from data node:", storeBlockRes.Err))
-		return false
-	}
-
-	return true
+	shared.VerbosePrintln("Successfully stored all blocks to a data node")
 }
