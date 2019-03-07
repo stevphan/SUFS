@@ -23,6 +23,15 @@ func min(a, b int) int {
 	return b
 }
 
+func stringsMap(strs []string, mapper func(string) string) []string {
+	result := []string{}
+	for _, str := range strs {
+		result = append(result, mapper(str))
+	}
+
+	return result
+}
+
 func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, response interface{}) {
 	buffer, err := shared.ConvertObjectToJsonBuffer(request)
 	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
