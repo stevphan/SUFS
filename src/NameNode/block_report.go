@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-const (
-)
-
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
 	myRes := shared.BlockReportResponse{}
 
@@ -41,9 +38,9 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 
 	//TODO make sure files have the same number of blocks
 	var ipFound bool
-	for i := 0; i < len(myReq.BlockId); i++ {
+	for i := 0; i < len(myReq.BlockIds); i++ {
 		ipFound = false
-		temp := strings.Split(myReq.BlockId[i], "_")
+		temp := strings.Split(myReq.BlockIds[i], "_")
 		fileName, blockNum := temp[0], temp[1]
 		blockId, err := strconv.Atoi(blockNum)
 		errorPrint(err)

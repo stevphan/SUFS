@@ -53,10 +53,6 @@ type BlockReportResponse struct {
 	Err string `json:"Error"`
 }
 
-type BlockReportResponse struct {
-	Err string `json:"Error"`
-}
-
 // Helpers
 
 type BlockInfo struct {
