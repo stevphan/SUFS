@@ -27,9 +27,12 @@ func main() {
 	dnList = append(dnList, "localhost:8082")
 	numDn++
 
+	//go replicationCheck()
+
 	http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
 	http.HandleFunc("/blockReport", blockReport)
+	http.HandleFunc("/heartBeat", heartBeat)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"shared"
+	"Shared"
 	"strconv"
 )
 

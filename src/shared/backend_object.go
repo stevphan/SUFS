@@ -53,6 +53,16 @@ type BlockReportResponse struct {
 	Err string `json:"Error"`
 }
 
+//Heartbeat
+
+type HeartbeatRequest struct {
+	MyIp string `json:"MyIp"`
+}
+
+type HeartbeatResponse struct {
+	Err string `json:"Error"`
+}
+
 // Helpers
 
 type BlockInfo struct {
