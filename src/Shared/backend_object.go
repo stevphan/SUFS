@@ -48,6 +48,10 @@ type BlockReportRequest struct {
 	BlockId []string 	`json:"BlockId"`
 }
 
+type BlockReportResponse struct {
+	Err string `json:"Error"`
+}
+
 // Helpers
 
 type BlockInfo struct {

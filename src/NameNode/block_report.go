@@ -13,6 +13,8 @@ const (
 )
 
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
+	myRes := shared.BlockReportResponse{}
+
 	decoder := json.NewDecoder(req.Body)
 	myReq := shared.BlockReportRequest{}
 	err := decoder.Decode(&myReq)
@@ -68,6 +70,13 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 	}
 	fmt.Println(files)
 	writeFilesToDisk()
+
+	//Returns myRes which is a shared.BlockReportResponse
+	js, err := convertObjectToJson(myRes)
+	errorPrint(err)
+	write.Header().Set("Content-Type", "application/json")
+	_, err = write.Write(js)
+	errorPrint(err)
 }
 
 //Returns true if file name found plus the index it is in the files.metadata[]
