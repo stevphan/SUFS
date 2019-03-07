@@ -103,7 +103,10 @@ func main() {
 		createFile(normalArgs[1:])
 	case actionGetFile:
 		shared.VerbosePrintln("User wants to get a file")
-		getFile(normalArgs[1:])
+		getFile(normalArgs[1:], false)
+	case actionListDataNodes:
+		shared.VerbosePrintln("User wants to get Data Node info of a file")
+		getFile(normalArgs[1:], true)
 	default:
 		log.Fatalf("Incorrect command. Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
 	}

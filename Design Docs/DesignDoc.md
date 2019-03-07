@@ -206,7 +206,7 @@ The Data Node will store the block if it's address is in the Data Node list in t
 
 * System design
 * Tools and technologies decided
-* Basic implementation of creating and getting files
+* Basic implementation of creating, getting, and listing data nodes of files
   * CLI
   * Name Node
   * Data Node
@@ -222,5 +222,4 @@ The Data Node will store the block if it's address is in the Data Node list in t
 ### Needs to be started
 
 * Heartbeat from Data Nodes to Name Node
-* List Data Nodes Command
 * AWS Setup

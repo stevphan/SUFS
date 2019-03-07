@@ -22,7 +22,8 @@ func createFile(createFileArgs []string) {
 }
 
 func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
-	verboseMessage := fmt.Sprintf("create file with args: %v", args)
+	fmtArgs := stringsMap(args, func(s string) string { return "'" + s + "'" })
+	verboseMessage := fmt.Sprintf("create file with args: %v", fmtArgs)
 	shared.VerbosePrintln(verboseMessage)
 
 	if len(args) != 3 {
