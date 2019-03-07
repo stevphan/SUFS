@@ -63,6 +63,17 @@ type HeartbeatResponse struct {
 	Err string `json:"Error"`
 }
 
+//Replication Check
+
+type ReplicationRequest struct {
+	BlockId string `json:"BlockId"`
+	DnList	[]string `json:"DataNodeList"`
+}
+
+type ReplicationResponse struct {
+	Err string `json:"Error"`
+}
+
 // Helpers
 
 type BlockInfo struct {

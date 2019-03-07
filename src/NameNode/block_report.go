@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
 	"Shared"
+	"encoding/json"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -47,7 +46,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		found, fileIndex := findFile(fileName)
 		if found {
 			for j := 0; j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); j++ {
-				fmt.Println(files)
+				//fmt.Println(files)
 				if myReq.MyIp == files.MetaData[fileIndex].BlockLists[blockId].DnList[j]{
 					ipFound = true
 				}
@@ -65,7 +64,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 			}
 		}
 	}
-	fmt.Println(files)
+	//fmt.Println(files)
 	writeFilesToDisk()
 
 	//Returns myRes which is a shared.BlockReportResponse
@@ -74,17 +73,4 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 	write.Header().Set("Content-Type", "application/json")
 	_, err = write.Write(js)
 	errorPrint(err)
-}
-
-//Returns true if file name found plus the index it is in the files.metadata[]
-//Returns false if file name not found plus index of -1
-func findFile(fileName string) (found bool, fileIndex int) {
-	if files.NumFiles > 0 {
-		for i := 0; i < files.NumFiles; i++ {
-			if files.MetaData[i].FileName == fileName {
-				return true, i
-			}
-		}
-	}
-	return false, -1
 }

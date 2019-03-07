@@ -26,8 +26,12 @@ func main() {
 	numDn++
 	dnList = append(dnList, "localhost:8082")
 	numDn++
+	dnList = append(dnList, "fake.ip.1")
+	numDn++
+	dnList = append(dnList, "fake.ip.2")
+	numDn++
 
-	//go replicationCheck()
+	go replicationCheck()
 
 	http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
