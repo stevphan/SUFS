@@ -94,8 +94,6 @@ func main() {
 		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
 	}
 
-	// TODO: ensure that tmp/create & tmp/get directories exist
-
 	userAction := normalArgs[0]
 	switch userAction {
 	case actionCreateFile:
