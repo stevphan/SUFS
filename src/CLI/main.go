@@ -17,8 +17,9 @@ const (
 	blockSize int = 64 * 1024 * 1024 // 64MB
 
 	// actions
-	actionCreateFile string = "create-file"
-	actionGetFile    string = "get-file"
+	actionCreateFile    string = "create-file"
+	actionGetFile       string = "get-file"
+	actionListDataNodes string = "list-data-nodes"
 )
 
 func doRequestTesting() {

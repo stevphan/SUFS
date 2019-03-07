@@ -2,14 +2,14 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"net/http"
+	"os"
+	"shared"
 )
 
 /*
@@ -37,17 +37,6 @@ func exists(path string) (bool) {
 }
 
 
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
-
 func convertObjectToJson(object interface{}) ([]byte, error) {
 	data, err := json.Marshal(object)
 	if err != nil {
@@ -57,54 +46,49 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 	return data, nil
 }
 
-// DN will have it's own S3 URL to save to, so for now just save to a folder on disk
-
-func get_block(write http.ResponseWriter, req *http.Request) string { // returns block requested from the current DN
-	blockId := getRequest{}
+func get_block(write http.ResponseWriter, req *http.Request) { // returns block requested from the current DN
+	blockReq := shared.GetBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&blockId)
+	err := decoder.Decode(&blockReq)
 	if err != nil {
 		log.Fatal("Decoding error: ", err)
 	}
 
-	fmt.Printf("Received: %s\n", blockId)
+	fmt.Printf("Received: %s\n", blockReq)
 
-	tempPath := "/Users/stxv/blocks/" + blockId.BlockId
+	tempPath := directory + blockReq.BlockId
 
-	returnData := &getResponse{
+	returnData := getResponse{
 		Block: "",
 		Error: "",
 	}
 
+
+
 	if exists(tempPath) {
-		fmt.Println("found " + blockId.BlockId)
+		fmt.Println("found " + blockReq.BlockId)
 		file, _ := os.Open(tempPath)
 		reader := bufio.NewReader(file)
 		content, _ := ioutil.ReadAll(reader)
-
 		// encode base64
 		returnData.Block = base64.StdEncoding.EncodeToString(content)
-
-		// for testing, print encoded values
-		//fmt.Println("ENCODED: " + encoded)
+		////for testing, print encoded values
+		//fmt.Println("ENCODED: " + returnData.Block)
 		//
 		//// check if decode works by testing decoded value
-		//decoded, err := base64.StdEncoding.DecodeString(encoded)
-		//if (err != nil) {
+		//decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
+		//if (err != nil) {}
 		//
-		//}
 		//// testing, print decoded values (expected: asdf)
 		//fmt.Println("decoded: " + string(decoded))
-
-
-
 	} else {
-		fmt.Println("did not find " + blockId.BlockId)
 		returnData.Error = "404"
 	}
 
-	reutrnJson,_ := convertObjectToJsonBuffer(returnData)
-	return returnData
-
-
+	js, err := convertObjectToJson(returnData)
+	log.Print(err)
+	write.Header().Set("Content-Type", "application/json")
+	_, _ = write.Write(js)
+	return
+	//	TODO: figure out how to return a JSON payload... embarassing. feels like it was wrong?
 }
