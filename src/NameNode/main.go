@@ -22,18 +22,21 @@ possibly use as argument during init (i.e. when booting main look for IP and por
 func main() {
 	readFilesFromDisk()
 	//for testing
-	dnList = append(dnList, "Hello")
+	dnList = append(dnList, "localhost:8081")
 	numDn++
-	dnList = append(dnList, "Hello1")
+	dnList = append(dnList, "localhost:8082")
 	numDn++
-	dnList = append(dnList, "Hello2")
+	dnList = append(dnList, "fake.ip.1")
 	numDn++
-	dnList = append(dnList, "Hello3")
+	dnList = append(dnList, "fake.ip.2")
 	numDn++
+
+	go replicationCheck()
 
 	http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
 	http.HandleFunc("/blockReport", blockReport)
+	http.HandleFunc("/heartBeat", heartBeat)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

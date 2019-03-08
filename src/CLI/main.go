@@ -17,8 +17,9 @@ const (
 	blockSize int = 64 * 1024 * 1024 // 64MB
 
 	// actions
-	actionCreateFile string = "create-file"
-	actionGetFile    string = "get-file"
+	actionCreateFile    string = "create-file"
+	actionGetFile       string = "get-file"
+	actionListDataNodes string = "list-data-nodes"
 )
 
 func doRequestTesting() {
@@ -93,8 +94,6 @@ func main() {
 		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
 	}
 
-	// TODO: ensure that tmp/create & tmp/get directories exist
-
 	userAction := normalArgs[0]
 	switch userAction {
 	case actionCreateFile:
@@ -102,7 +101,10 @@ func main() {
 		createFile(normalArgs[1:])
 	case actionGetFile:
 		shared.VerbosePrintln("User wants to get a file")
-		getFile(normalArgs[1:])
+		getFile(normalArgs[1:], false)
+	case actionListDataNodes:
+		shared.VerbosePrintln("User wants to get Data Node info of a file")
+		getFile(normalArgs[1:], true)
 	default:
 		log.Fatalf("Incorrect command. Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
 	}

@@ -49,3 +49,16 @@ func errorPrint(err error) {
 		log.Println(err.Error())
 	}
 }
+
+//Returns true if file name found plus the index it is in the files.metadata[]
+//Returns false if file name not found plus index of -1
+func findFile(fileName string) (found bool, fileIndex int) {
+	if files.NumFiles > 0 {
+		for i := 0; i < files.NumFiles; i++ {
+			if files.MetaData[i].FileName == fileName {
+				return true, i
+			}
+		}
+	}
+	return false, -1
+}

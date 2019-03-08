@@ -43,9 +43,35 @@ type GetBlockResponse struct {
 }
 
 //Block Report
+
 type BlockReportRequest struct {
-	MyIp string			`json:"MyIp"`
-	BlockId []string 	`json:"BlockId"`
+	MyIp     string   `json:"MyIp"`
+	BlockIds []string `json:"BlockIds"`
+}
+
+type BlockReportResponse struct {
+	Err string `json:"Error"`
+}
+
+//Heartbeat
+
+type HeartbeatRequest struct {
+	MyIp string `json:"MyIp"`
+}
+
+type HeartbeatResponse struct {
+	Err string `json:"Error"`
+}
+
+//Replication Check
+
+type ReplicationRequest struct {
+	BlockId string `json:"BlockId"`
+	DnList	[]string `json:"DataNodeList"`
+}
+
+type ReplicationResponse struct {
+	Err string `json:"Error"`
 }
 
 // Helpers

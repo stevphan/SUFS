@@ -1,18 +1,16 @@
 package main
 
 import (
+	"Shared"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"shared"
 	"strconv"
 	"strings"
 )
 
-const (
-)
-
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
+	myRes := shared.BlockReportResponse{}
+
 	decoder := json.NewDecoder(req.Body)
 	myReq := shared.BlockReportRequest{}
 	err := decoder.Decode(&myReq)
@@ -39,16 +37,16 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 
 	//TODO make sure files have the same number of blocks
 	var ipFound bool
-	for i := 0; i < len(myReq.BlockId); i++ {
+	for i := 0; i < len(myReq.BlockIds); i++ {
 		ipFound = false
-		temp := strings.Split(myReq.BlockId[i], "_")
+		temp := strings.Split(myReq.BlockIds[i], "_")
 		fileName, blockNum := temp[0], temp[1]
 		blockId, err := strconv.Atoi(blockNum)
 		errorPrint(err)
 		found, fileIndex := findFile(fileName)
 		if found {
 			for j := 0; j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); j++ {
-				fmt.Println(files)
+				//fmt.Println(files)
 				if myReq.MyIp == files.MetaData[fileIndex].BlockLists[blockId].DnList[j]{
 					ipFound = true
 				}
@@ -66,19 +64,13 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 			}
 		}
 	}
-	fmt.Println(files)
+	//fmt.Println(files)
 	writeFilesToDisk()
-}
 
-//Returns true if file name found plus the index it is in the files.metadata[]
-//Returns false if file name not found plus index of -1
-func findFile(fileName string) (found bool, fileIndex int) {
-	if files.NumFiles > 0 {
-		for i := 0; i < files.NumFiles; i++ {
-			if files.MetaData[i].FileName == fileName {
-				return true, i
-			}
-		}
-	}
-	return false, -1
+	//Returns myRes which is a shared.BlockReportResponse
+	js, err := convertObjectToJson(myRes)
+	errorPrint(err)
+	write.Header().Set("Content-Type", "application/json")
+	_, err = write.Write(js)
+	errorPrint(err)
 }

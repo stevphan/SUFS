@@ -87,8 +87,8 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 		log.Fatal("Decoding error: ", err)
 	}
 
-	fmt.Printf("Received: %s\n", storeReq)
-	fmt.Println("")
+	//fmt.Printf("Received: %s\n", storeReq)
+	//fmt.Println("")
 
 
 	path := directory + storeReq.BlockId
@@ -127,7 +127,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 		log.Fatal("Encoding error: ", err)
 	}
 
-	fmt.Println("Decoded block data: " + string(decoded))
+//	fmt.Println("Decoded block data: " + string(decoded))
 	// create & write data
 	createFile(path)
 	writeFile(path, string(decoded))

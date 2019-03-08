@@ -1,35 +1,52 @@
 package main
 
 import (
-	"net/http"
 	"encoding/base64"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"shared"
+	"strings"
 )
 
-func getFile(getFileArgs []string) {
-	nameNodeAddr, filename, saveLocation := parseGetFileArgs(getFileArgs)
+func getFile(getFileArgs []string, displayDataNodeInfoOnly bool) {
+	nameNodeAddr, filename, saveLocation := parseGetFileArgs(getFileArgs, displayDataNodeInfoOnly)
 
 	getFileResponse := getFileInNameNode(nameNodeAddr, filename)
 
-	blocks := getBlocks(getFileResponse)
-	data := reconstructBlocks(blocks)
-	saveFileDataToDisk(data, saveLocation)
+	if getFileResponse.Err != "" {
+		log.Fatal(getFileResponse.Err)
+	}
+
+	if displayDataNodeInfoOnly {
+		displayDataNodeInfo(getFileResponse)
+	} else {
+		blocks := getBlocks(getFileResponse)
+		data := reconstructBlocks(blocks)
+		saveFileDataToDisk(data, saveLocation)
+	}
 }
 
-func parseGetFileArgs(args []string) (nameNodeAddr, filename, saveLocation string) {
-	verboseMessage := fmt.Sprintf("get file with args: %v", args)
+func parseGetFileArgs(args []string, displayDataNodeInfoOnly bool) (nameNodeAddr, filename, saveLocation string) {
+	fmtArgs := stringsMap(args, func(s string) string { return "'" + s + "'" })
+	verboseMessage := fmt.Sprintf("get file with args: %v", fmtArgs)
 	shared.VerbosePrintln(verboseMessage)
 
-	if len(args) != 3 {
-		log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <save-location>")
+	if displayDataNodeInfoOnly {
+		if len(args) != 2 {
+			log.Fatal("Input Error: Must use list-data-nodes in the following format 'CLI list-data-nodes <name-node-address> <filename>")
+		}
+	} else {
+		if len(args) != 3 {
+			log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <save-location>")
+		}
+
+		saveLocation = args[2]
 	}
 
 	nameNodeAddr = args[0]
 	filename = args[1]
-	saveLocation = args[2]
 
 	return
 }
@@ -47,11 +64,14 @@ func getFileInNameNode(nameNodeAddr, filename string) (getFileResponse shared.Ge
 	return
 }
 
-func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string) {
-	if getFileResponse.Err != "" {
-		log.Fatal(getFileResponse.Err)
+func displayDataNodeInfo(getFileResponse shared.GetFileNameNodeResponse) {
+	for i, blockInfo := range getFileResponse.BlockInfos {
+		dnList := strings.Join(blockInfo.DnList, ", ")
+		fmt.Printf("%d. '%s' [%s]\n", i, blockInfo.BlockId, dnList)
 	}
+}
 
+func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string) {
 	blocks = []string{}
 
 	for i, info := range getFileResponse.BlockInfos {
