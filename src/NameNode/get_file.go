@@ -19,6 +19,7 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 	if files.NumFiles < 1 {
 		//TODO fail write (DONE?)
 		myRes := shared.GetFileNameNodeResponse{}
+		myRes.Err = "No files found"
 		js, err := convertObjectToJson(myRes)
 		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")
@@ -36,6 +37,7 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 
 	if !found {
 		myRes := shared.GetFileNameNodeResponse{}
+		myRes.Err = "File " + myReq.FileName + " not found"
 		js, err := convertObjectToJson(myRes)
 		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")

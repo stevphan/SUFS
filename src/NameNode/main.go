@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -28,15 +27,6 @@ func main() {
 	addToDnList("localhost:8082")
 	addToDnList("fake.ip.1")
 	addToDnList("fake.ip.2")
-	/*dnList = append(dnList, "localhost:8081")
-	numDn++
-	dnList = append(dnList, "localhost:8082")
-	numDn++
-	dnList = append(dnList, "fake.ip.1")
-	numDn++
-	dnList = append(dnList, "fake.ip.2")
-	numDn++*/
-	log.Println(dnList)
 
 	go replicationCheck()
 	go dataNodeDead()
