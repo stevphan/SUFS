@@ -1,8 +1,8 @@
 package main
 
 /*
-DataNodeList
-BlockId
+call heartbeat from NN
+
  */
 
 import (
@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	s3address string
+	selfAddress string
+	nameNodeAddress string
 	directory = "/Users/stxv/blocks/"
 )
 
@@ -20,7 +21,7 @@ func main() {
 	/*
 	ensure directory exists
 	 */
-	addr := ""
+	addr := "" // DN address
 	if len(os.Args) >= 1 {
 		addr = os.Args[1]
 	}
@@ -31,7 +32,13 @@ func main() {
 	}
 
 	// accessible var so other store_and_forward can check if self in DnList
-	s3address = addr
+	selfAddress = addr
+
+	/*
+	spin up heartbeat and blockreport in separate threads
+	send heartbeatreq to NN with IP
+
+	 */
 
 	http.HandleFunc("/getBlock", get_block)
 	http.HandleFunc("/storeBlock", store_and_foward)

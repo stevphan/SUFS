@@ -132,16 +132,5 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	// forward without self in DnList
 	shared.StoreSingleBlock(storeReq)
 
-
-	/*
-	on success, drop self from array
-	if array not empty
-	forward to first in array
-	 */
-
-	//	TODO: figure out 'forwarding'
-	//	TODO: if block already exists, what about overwriting old data (i.e. adding a line to a file)? should I write anyway?
-	// if I have the address/location of each DN, maybe insert directly into the DN??? would have to set up and test if possible [
-
 }
 
