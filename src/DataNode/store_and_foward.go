@@ -19,11 +19,6 @@ DataNodeList
  // passed in JSON payloads
 
 
-func remove(s []int, i int) []int {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 
 func isError(err error) bool {
 	if err != nil {
@@ -31,6 +26,15 @@ func isError(err error) bool {
 	}
 
 	return err != nil
+}
+
+func removeSelf(storeReq shared.StoreBlockRequest) {
+	for i, v := range storeReq.DnList {
+		if v == selfAddress {
+			storeReq.DnList = append(storeReq.DnList[:i], storeReq.DnList[i+1:]...)
+			break
+		}
+	}
 }
 
 func createFile(path string) {
@@ -94,6 +98,11 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 		os.MkdirAll(directory, os.ModePerm)
 	}
 
+	// if block is already contained, then find self (if self in DnList) and then forward
+	if exists(path) {
+		removeSelf(storeReq)
+		shared.StoreSingleBlock(storeReq)
+	}
 	// if list is empty, then just stop
 	if len(storeReq.DnList) < 1 {
 		return
@@ -102,7 +111,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	// check if self is in DnList, if not then abort
 	var isContained = false
 	for _, v := range storeReq.DnList {
-		if v == s3address {
+		if v == selfAddress {
 			isContained = true
 		}
 	}
@@ -123,12 +132,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	createFile(path)
 	writeFile(path, string(decoded))
 	// find self and drop from array
-	for i, v := range storeReq.DnList {
-		if v == s3address {
-			storeReq.DnList = append(storeReq.DnList[:i], storeReq.DnList[i+1:]...)
-			break
-		}
-	}
+	removeSelf(storeReq)
 	// forward without self in DnList
 	shared.StoreSingleBlock(storeReq)
 
