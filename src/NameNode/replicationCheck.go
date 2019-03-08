@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"Shared"
+	"log"
 	"strconv"
 	"time"
 )
@@ -30,7 +29,7 @@ func repCheck() {
 		for j := 0; j < files.MetaData[i].NumBlocks; j++ {
 			if len(files.MetaData[i].BlockLists[j].DnList) == 0 {
 				//TODO figure out what happens in this case, maybe after two fails delete file
-				fmt.Println("what to do")
+				log.Print("Dead Block: ", files.MetaData[i].FileName, "_", j, "\n")
 			} else if len(files.MetaData[i].BlockLists[j].DnList) < replicationFactor {
 				checkFailed(files.MetaData[i].FileName, j, i)
 			}
@@ -50,7 +49,7 @@ func updateReplicationFactor() {
 }
 
 func checkFailed(fileName string, blockId int, fileIndex int) {
-	log.Print(fileName, "_", blockId, " replication check failed")
+	log.Print(fileName, "_", blockId, " replication check failed\n")
 	myReq := shared.ReplicationRequest{}
 	myReq.BlockId = fileName + "_" + strconv.Itoa(blockId)
 	/*for i := 0; i < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); i++ {

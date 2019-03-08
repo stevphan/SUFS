@@ -31,6 +31,7 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 func writeFilesToDisk() {
 	js, _ := json.MarshalIndent(files, "", " ")
 	err := ioutil.WriteFile(saveData, js, 0644)
+	log.Println(files)
 	errorPrint(err)
 }
 
