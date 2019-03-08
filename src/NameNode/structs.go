@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type file struct {
 	NumFiles int
 	MetaData []fileMetaData
@@ -13,6 +15,11 @@ type fileMetaData struct {
 
 type blockList struct {
 	DnList []string //stores IP of DNs it is stored at
+}
+
+type dataNodeList struct {
+	dnIP 	string
+	dnTime time.Time
 }
 
 /*type createRequest struct{

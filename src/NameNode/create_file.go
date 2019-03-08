@@ -69,7 +69,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		blockList.BlockId = myReq.FileName + "_" + strconv.Itoa(i)
 		blockList.DnList = make([]string, replicationFactor)
 		for k := 0; k < replicationFactor; k++ {
-			blockList.DnList[k] = dnList[j]
+			blockList.DnList[k] = dnList[j].dnIP
 			j++
 			if j == numDn {
 				j = 0
@@ -86,7 +86,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	for i := 0; i < blocksRequired; i++ {
 		blockList := blockList{}
 		/*for j := 0; j < repFact; j++ {
-			blockList.DnList[j] = ""
+			blockList.DnListDnList[j] = ""
 		}*/
 		fileToStore.BlockLists[i] = blockList
 	}

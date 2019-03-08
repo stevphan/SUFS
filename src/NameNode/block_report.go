@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
@@ -18,21 +19,20 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 
 	found := false
 	if numDn < 1 {
-		dnList = append(dnList, myReq.MyIp)
-		numDn++
+		addToDnList(myReq.MyIp)
 	} else {
 		//for i := 0; i < numDn; i++ {
 		i := 0
 		for !found && i < numDn {
-			if dnList[i] == myReq.MyIp {
+			if dnList[i].dnIP == myReq.MyIp {
 				found = true
+				dnList[i].dnTime = time.Now()
 			}
 			i++
 		}
 	}
 	if !found {
-		dnList = append(dnList, myReq.MyIp)
-		numDn++
+		addToDnList(myReq.MyIp)
 	}
 
 	//TODO make sure files have the same number of blocks

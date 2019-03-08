@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -10,7 +11,8 @@ const (
 )
 
 var (
-	dnList = []string{}
+	dnList = []dataNodeList{}
+	//dnList = []string{}
 	numDn = 0
 	files file
 )
@@ -22,16 +24,22 @@ possibly use as argument during init (i.e. when booting main look for IP and por
 func main() {
 	readFilesFromDisk()
 	//for testing
-	dnList = append(dnList, "localhost:8081")
+	addToDnList("localhost:8081")
+	addToDnList("localhost:8082")
+	addToDnList("fake.ip.1")
+	addToDnList("fake.ip.2")
+	/*dnList = append(dnList, "localhost:8081")
 	numDn++
 	dnList = append(dnList, "localhost:8082")
 	numDn++
 	dnList = append(dnList, "fake.ip.1")
 	numDn++
 	dnList = append(dnList, "fake.ip.2")
-	numDn++
+	numDn++*/
+	log.Println(dnList)
 
 	go replicationCheck()
+	go dataNodeDead()
 
 	http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
