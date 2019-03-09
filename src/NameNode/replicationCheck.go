@@ -3,6 +3,7 @@ package main
 import (
 	"Shared"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -81,9 +82,11 @@ func checkFailed(fileName string, blockId int, fileIndex int) {
 	response := false
 	for k < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !response { //For potential error in communicating
 		//TODO send request to known Data Node (files.MetaData[fileIndex].BlockLists[blockId].DnList[j])
-		//if gotten response, response = true
+		buffer, err := shared.ConvertObjectToJsonBuffer(myReq)
+		_, err = http.Post(files.MetaData[fileIndex].BlockLists[blockId].DnList[k] + "/replicateBlocks","application/json", buffer)
+		if err == nil {
+			response = true
+		}
 		k++
 	}
-	//Don't care if never communicate, will eventually fix
-	//TODO receive response from Data Node
 }

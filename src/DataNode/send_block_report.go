@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"shared"
 	"time"
 )
@@ -13,6 +14,7 @@ const (
 )
 
 func send_block_report() { // sends a block report every blockReportTimer seconds, so every minute
+	create_report()
 	ticker := time.NewTicker(blockReportTimer * time.Second)
 	for range ticker.C {
 		log.Println("sending block report")
@@ -22,7 +24,13 @@ func send_block_report() { // sends a block report every blockReportTimer second
 
 func create_report() {
 	myBlockReport := shared.BlockReportRequest{MyIp:selfAddress}
+
+	if !exists(directory) {
+		_ = os.MkdirAll(directory, os.ModePerm)
+	}
+
 	blocks, err := ioutil.ReadDir(directory)
+
 	nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
 	if err != nil {
 		log.Fatal(err)

@@ -136,5 +136,10 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	// forward without self in DnList
 	shared.StoreSingleBlock(storeReq)
 
+	storeResp := shared.StoreBlockResponse{}
+	js, err := convertObjectToJson(storeResp)
+	write.Header().Set("Content-Type", "application/json")
+	_, err = write.Write(js)
+
 }
 
