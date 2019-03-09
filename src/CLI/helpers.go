@@ -37,7 +37,9 @@ func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, respo
 	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
 	url := "http://" + nameNodeAddr + "/" + path
-	res, err := http.Post(url, "application/json", buffer)
+
+	client := http.Client{Timeout: nameNodeTimeout}
+	res, err := client.Post(url, "application/json", buffer)
 	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
 
 	err = shared.ObjectFromResponse(res, response)

@@ -5,11 +5,13 @@ import (
 	"os"
 	"shared"
 	"strings"
+	"time"
 )
 
 const (
 	// system constants
-	blockSize int = 64 * 1024 * 1024 // 64MB
+	blockSize       int = 64 * 1024 * 1024 // 64MB
+	nameNodeTimeout     = time.Duration(5 * time.Second)
 
 	// actions
 	actionCreateFile    string = "create-file"
