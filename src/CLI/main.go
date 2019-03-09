@@ -36,7 +36,7 @@ func main() {
 	parseEnvironmentVariables()
 
 	if len(normalArgs) == 0 {
-		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
+		log.Fatalf("Must supply an action of '%s', '%s', or '%s'\n", actionCreateFile, actionGetFile, actionListDataNodes)
 	}
 
 	userAction := normalArgs[0]
