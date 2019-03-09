@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	blockReportTimer = 60 //in seconds
+	blockReportTimer = 30 //in seconds
 )
 
 func send_block_report() { // sends a block report every blockReportTimer seconds, so every minute

@@ -13,6 +13,8 @@ import (
 )
 
 func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
+	log.Println("Called to replicate")
+
 	recoverReq := shared.ReplicationRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&recoverReq)
@@ -20,11 +22,11 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 		log.Fatal("Decoding error: ", err)
 	}
 
-	nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
+	//nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
 
-	recoverResp := shared.ReplicationResponse{Err:""}
+	recoverResp := shared.ReplicationResponse{}
 
-	tempPath := directory + recoverReq.BlockId
+	tempPath := directory + "/" + recoverReq.BlockId
 	if exists(tempPath) {
 		fmt.Println("found " + recoverReq.BlockId)
 		file, _ := os.Open(tempPath)
@@ -38,10 +40,11 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 	}
 
 	// return POST to NN
-	buffer, err := shared.ConvertObjectToJsonBuffer(recoverResp)
+	/*buffer, err := shared.ConvertObjectToJsonBuffer(recoverResp)
 	res, err := http.Post(nameNodeUrl,"application/json", buffer)
 	err = shared.ObjectFromResponse(res, &recoverResp)
-	shared.CheckErrorAndFatal("Error sending replication", err)
-
-	return
+	shared.CheckErrorAndFatal("Error sending replication", err)*/
+	js, err := convertObjectToJson(recoverResp)
+	write.Header().Set("Content-Type", "application/json")
+	_, err = write.Write(js)
 }

@@ -112,7 +112,7 @@ func getSingleBlockFromDataNode(request shared.GetBlockRequest, nodeAddr string)
 		return "", false
 	}
 
-	url := "http://" + nodeAddr + "/store-block"
+	url := "http://" + nodeAddr + "/getBlock"
 	res, err := http.Post(url, "application/json", buffer)
 	if err != nil {
 		log.Println("Error while communicating with the data node:", err)

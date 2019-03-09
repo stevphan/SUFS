@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -54,19 +53,14 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 		log.Fatal("Decoding error: ", err)
 	}
 
-	fmt.Printf("Received: %s\n", blockReq)
+	log.Print("Received request for block ", blockReq.BlockId, "\n")
 
-	tempPath := directory + blockReq.BlockId
+	tempPath := directory + "/" + blockReq.BlockId
 
-	returnData := getResponse{
-		Block: "",
-		Error: "",
-	}
-
-
+	returnData := shared.GetBlockResponse{}
 
 	if exists(tempPath) {
-		fmt.Println("found " + blockReq.BlockId)
+		log.Println("found " + blockReq.BlockId)
 		file, _ := os.Open(tempPath)
 		reader := bufio.NewReader(file)
 		content, _ := ioutil.ReadAll(reader)
@@ -82,7 +76,7 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 		//// testing, print decoded values (expected: asdf)
 		//fmt.Println("decoded: " + string(decoded))
 	} else {
-		returnData.Error = "404"
+		returnData.Err = "Block not found"
 	}
 
 	js, err := convertObjectToJson(returnData)
@@ -90,4 +84,4 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
 	return
-	}
+}
