@@ -1,16 +1,11 @@
 package main
 
 import (
-	"bytes"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"shared"
 	"strings"
 )
-
-var useLocalFile = false
 
 const (
 	// system constants
@@ -20,75 +15,25 @@ const (
 	actionCreateFile    string = "create-file"
 	actionGetFile       string = "get-file"
 	actionListDataNodes string = "list-data-nodes"
+
+	// S3 constants
+	// tempS3DownloadFileName string = "temp_s3_download_file_name"
+	awsRegion string = "us-west-2"
 )
 
-func doRequestTesting() {
-	// originalObject := createFileNameNodeRequest{
-	// 	FileName: "myfilename",
-	// 	Size: "12345",
-	// }
-
-	dnList := []string{"1.2.3.4", "5.6.7.8", "10.0.0.7"}
-
-	originalObject := shared.StoreBlockRequest{
-		Block:   "actualblock",
-		DnList:  dnList,
-		BlockId: "blockid_123",
-	}
-
-	buffer, err := shared.ConvertObjectToJsonBuffer(originalObject)
-	jsonString := string(buffer.Bytes())
-
-	log.Printf("json: %s\nerror: %v", jsonString, err)
-	log.Println("finished")
-}
-
-func doResponseTesting() {
-	// jsonString := `
-	// {
-	// 	"BlockInfos": [
-	// 		{
-	// 			"BlockId": "myfile_1",
-	// 			"DataNodeList": [
-	// 				"1.1.1.1",
-	// 				"2.2.2.2"
-	// 			]
-	// 		},
-	// 		{
-	// 			"BlockId": "myfile_2",
-	// 			"DataNodeList": [
-	// 				"3.3.3.3",
-	// 				"4.4.4.4",
-	// 				"5.5.5.5"
-	// 			]
-	// 		}
-	// 	],
-	// 	"Error": "an error occured"
-	// }`
-
-	jsonString := `
-	{
-		"Error": "an error occured"
-	}`
-
-	res := http.Response{
-		Body: ioutil.NopCloser(bytes.NewBufferString(jsonString)),
-	}
-
-	inflatedObject := shared.StoreBlockResponse{}
-	err := shared.ObjectFromResponse(&res, &inflatedObject)
-
-	log.Printf("object: %v\nerror: %v", inflatedObject, err)
-	log.Println("finished")
-}
+var (
+	awsAccessId          string
+	awsSecretAccessToken string
+)
 
 func main() {
 	log.SetPrefix("- ")
 	log.SetFlags(LogFlagFilenameAndLine)
 
-	normalArgs, options := parseOsArgs()
+	normalArgs, options := parseArgs()
 	shared.Verbose = contains(options, "v")
-	useLocalFile = contains(options, "use-local-file")
+
+	parseEnvironmentVariables()
 
 	if len(normalArgs) == 0 {
 		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
@@ -106,11 +51,11 @@ func main() {
 		shared.VerbosePrintln("User wants to get Data Node info of a file")
 		getFile(normalArgs[1:], true)
 	default:
-		log.Fatalf("Incorrect command. Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
+		log.Fatalf("Incorrect command. Must supply an action '%s', '%s' or '%s'\n", actionCreateFile, actionGetFile, actionListDataNodes)
 	}
 }
 
-func parseOsArgs() (normalArgs []string, options []string) {
+func parseArgs() (normalArgs []string, options []string) {
 	normalArgs = []string{}
 	options = []string{}
 
@@ -124,4 +69,17 @@ func parseOsArgs() (normalArgs []string, options []string) {
 	}
 
 	return
+}
+
+func parseEnvironmentVariables() {
+	awsAccessId = os.Getenv("AWS_ACCESS_ID")
+	awsSecretAccessToken = os.Getenv("AWS_SECRET_ACCESS_TOKEN")
+
+	if len(awsAccessId) == 0 {
+		log.Fatal("Environment variable AWS_ACCESS_ID not set")
+	}
+
+	if len(awsSecretAccessToken) == 0 {
+		log.Fatal("Environment variable AWS_SECRET_ACCESS_TOKEN not set")
+	}
 }
