@@ -33,6 +33,11 @@ func create_report() {
 	}
 	// send as POST to NN, since block report we don't needs a response
 	buffer, err := shared.ConvertObjectToJsonBuffer(myBlockReport)
-	_, _ = http.Post(nameNodeUrl,"application/json", buffer)
+	res, err := http.Post(nameNodeUrl,"application/json", buffer)
+
+	// handle response
+	reportResponse  := shared.BlockReportResponse{}
+	err = shared.ObjectFromResponse(res, &reportResponse)
+	shared.CheckErrorAndFatal("Error sending heartbeat", err)
 }
 

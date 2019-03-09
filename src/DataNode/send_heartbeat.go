@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	heartTimer = 10 //in ms
+	heartTimer = 10 //in seconds
 )
 
 
