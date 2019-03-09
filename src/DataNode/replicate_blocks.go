@@ -37,7 +37,7 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 		recoverResp.Err = "404_FILE_NOT_FOUND"
 	}
 
-	// return POST to
+	// return POST to NN
 	buffer, err := shared.ConvertObjectToJsonBuffer(recoverResp)
 	res, err := http.Post(nameNodeUrl,"application/json", buffer)
 	err = shared.ObjectFromResponse(res, &recoverResp)

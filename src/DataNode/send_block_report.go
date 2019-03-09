@@ -39,5 +39,7 @@ func create_report() {
 	reportResponse  := shared.BlockReportResponse{}
 	err = shared.ObjectFromResponse(res, &reportResponse)
 	shared.CheckErrorAndFatal("Error sending heartbeat", err)
+
+	return
 }
 

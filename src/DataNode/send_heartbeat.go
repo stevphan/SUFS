@@ -30,4 +30,5 @@ func heartbeat() {
 	heartbeatResp := shared.HeartbeatResponse{}
 	err = shared.ObjectFromResponse(res, &heartbeatResp)
 	shared.CheckErrorAndFatal("Error sending heartbeat", err)
+	return
 }
