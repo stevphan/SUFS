@@ -11,6 +11,7 @@ const (
 )
 
 func dataNodeDead() {
+	time.Sleep(30 * time.Second)
 	ticker := time.NewTicker(dnCheckFreq * time.Millisecond)
 	for range ticker.C {
 		log.Println("Calling dnCheck")
