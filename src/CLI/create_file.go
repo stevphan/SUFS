@@ -3,16 +3,14 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"shared"
 )
 
 func createFile(createFileArgs []string) {
 	nameNodeAddr, filename, s3Url := parseCreateFileArgs(createFileArgs)
 
-	fileData := downloadFile(s3Url)
+	fileData := downloadS3File(s3Url)
 
 	fileSize := fmt.Sprintf("%d", len(fileData))
 	createFileResponse := createFileInNameNode(nameNodeAddr, filename, fileSize)
@@ -35,30 +33,6 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	s3Url = args[2]
 
 	return
-}
-
-func downloadFile(url string) []byte {
-	shared.VerbosePrintln("Downloading file from S3 bucket")
-
-	res, err := http.Get(url)
-	shared.CheckErrorAndFatal("Unable to download file from S3 bucket URL", err)
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		log.Fatalf("Received status code %s when downloading S3 bucket file", res.Status)
-	}
-
-	if res.Body == nil {
-		log.Fatal("S3 response has no body")
-	}
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		shared.CheckErrorAndFatal("Unable to read bytes from S3 response body", err)
-	}
-
-	shared.VerbosePrintln("Successfully downloaded file")
-	return data
 }
 
 func createFileInNameNode(nameNodeAddr, filename, size string) (createFileResponse shared.CreateFileNameNodeResponse) {

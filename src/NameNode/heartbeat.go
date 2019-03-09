@@ -4,6 +4,7 @@ import (
 	"Shared"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 func heartBeat(write http.ResponseWriter, req *http.Request) {
@@ -14,7 +15,15 @@ func heartBeat(write http.ResponseWriter, req *http.Request) {
 	err := decoder.Decode(&myReq)
 	errorPrint(err)
 
-	//TODO delay some timer
+	i := 0
+	found := false
+	for i < numDn && !found {
+		if myReq.MyIp == dnList[i].dnIP {
+			dnList[i].dnTime = time.Now()
+			found = true
+		}
+		i++
+	}
 
 	//Returns myRes which is a shared.HeartbeatResponse
 	js, err := convertObjectToJson(myRes)
