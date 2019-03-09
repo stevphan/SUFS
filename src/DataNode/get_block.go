@@ -90,5 +90,4 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
 	return
-	//	TODO: figure out how to return a JSON payload... embarassing. feels like it was wrong?
-}
+	}

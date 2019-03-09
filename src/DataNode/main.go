@@ -14,14 +14,14 @@ import (
 var (
 	selfAddress string
 	nameNodeAddress string
-	directory = "/Users/stxv/blocks/"
+	directory = "/Users/stxv/blocks/" // for testing purposes, change later!
 )
 
 func main() {
 	/*
 	ensure directory exists
 	 */
-	addr := "" // DN address
+	addr := ""
 	if len(os.Args) >= 1 {
 		addr = os.Args[1]
 	}
@@ -34,6 +34,8 @@ func main() {
 	// accessible var so other store_and_forward can check if self in DnList
 	selfAddress = addr
 
+	// os.Args[2] == nameNodeAddress
+
 	/*
 	spin up heartbeat and blockreport in separate threads
 	send heartbeatreq to NN with IP
@@ -42,6 +44,10 @@ func main() {
 
 	http.HandleFunc("/getBlock", get_block)
 	http.HandleFunc("/storeBlock", store_and_foward)
+	http.HandleFunc("/replicateBlocks", replicate_blocks)
+
+	go send_heartbeat()
+	go send_block_report()
 
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
