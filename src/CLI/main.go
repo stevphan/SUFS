@@ -5,11 +5,13 @@ import (
 	"os"
 	"shared"
 	"strings"
+	"time"
 )
 
 const (
 	// system constants
-	blockSize int = 64 * 1024 * 1024 // 64MB
+	blockSize       int = 64 * 1024 * 1024 // 64MB
+	nameNodeTimeout     = time.Duration(5 * time.Second)
 
 	// actions
 	actionCreateFile    string = "create-file"
@@ -36,7 +38,7 @@ func main() {
 	parseEnvironmentVariables()
 
 	if len(normalArgs) == 0 {
-		log.Fatalf("Must supply an action of '%s' or '%s'\n", actionCreateFile, actionGetFile)
+		log.Fatalf("Must supply an action of '%s', '%s', or '%s'\n", actionCreateFile, actionGetFile, actionListDataNodes)
 	}
 
 	userAction := normalArgs[0]

@@ -22,9 +22,9 @@ func getFile(getFileArgs []string, displayDataNodeInfoOnly bool) {
 	if displayDataNodeInfoOnly {
 		displayDataNodeInfo(getFileResponse)
 	} else {
-		blocks := getBlocks(getFileResponse)
-		data := reconstructBlocks(blocks)
-		saveFileDataToDisk(data, saveLocation)
+		file := createSaveLocation(saveLocation)
+		getAndSaveBlocks(getFileResponse, file)
+		log.Println("Finished")
 	}
 }
 
@@ -71,19 +71,33 @@ func displayDataNodeInfo(getFileResponse shared.GetFileNameNodeResponse) {
 	}
 }
 
-func getBlocks(getFileResponse shared.GetFileNameNodeResponse) (blocks []string) {
-	blocks = []string{}
+func createSaveLocation(saveLocation string) *os.File {
+	file, err := os.Create(saveLocation)
+	if err != nil {
+		log.Fatal("Unable to create local file:", err)
+	}
+
+	return file
+}
+
+func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.File) {
+	defer file.Close()
 
 	for i, info := range getFileResponse.BlockInfos {
 		block, success := getSingleBlock(info)
 		if !success {
+			os.Remove(file.Name())
 			log.Fatalf("Unable to get block %d/%d", i, len(getFileResponse.BlockInfos))
 		}
 
-		blocks = append(blocks, block)
-	}
+		decoded, err := base64.StdEncoding.DecodeString(block)
+		if err != nil {
+			os.Remove(file.Name())
+			log.Fatalf("Unable to decode block %d/%d: %v", i, len(getFileResponse.BlockInfos), err)
+		}
 
-	return
+		file.Write(decoded)
+	}
 }
 
 func getSingleBlock(info shared.BlockInfo) (string, bool) {
@@ -132,36 +146,4 @@ func getSingleBlockFromDataNode(request shared.GetBlockRequest, nodeAddr string)
 	}
 
 	return response.Block, true
-}
-
-func reconstructBlocks(blocks []string) (data []byte) {
-	data = []byte{}
-
-	for i, block := range blocks {
-		decoded, err := base64.StdEncoding.DecodeString(block)
-		if err != nil {
-			log.Fatalf("Unable to decode block %d/%d: %v", i, len(blocks), err)
-		}
-
-		data = append(data, decoded...)
-	}
-
-	return
-}
-
-func saveFileDataToDisk(data []byte, saveLocation string) {
-	file, err := os.Create(saveLocation)
-	if err != nil {
-		log.Fatal("Unable to create local file:", err)
-	}
-	defer file.Close()
-
-	written, err := file.Write(data)
-	if err != nil {
-		log.Fatal("Unable to write data to file:", err)
-	}
-
-	if written != len(data) {
-		log.Fatalf("Only wrote %d/%d bytes", written, len(data))
-	}
 }
