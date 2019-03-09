@@ -13,6 +13,10 @@ const (
 	blockSize int64 = 67108864 // assuming bytes, this is equal to 64 MB
 )
 
+var (
+	currentDn = 0 //index of the DataNode list
+)
+
 func createFile(write http.ResponseWriter, req *http.Request) { //needs to return list of dataNodes per block
 	var blocksRequired int
 
@@ -25,12 +29,13 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	if files.NumFiles > 0 {
 		for i := 0; i < files.NumFiles; i++ {
 			if files.MetaData[i].FileName == myReq.FileName {
-				//TODO fail write (DONE?)
 				myRes := shared.CreateFileNameNodeResponse{}
+				myRes.Err = "File with name " + myReq.FileName + " already exist"
 				js, err := convertObjectToJson(myRes)
 				errorPrint(err)
 				write.Header().Set("Content-Type", "application/json")
-				write.Write(js)
+				_, err = write.Write(js)
+				errorPrint(err)
 				return
 			}
 		}
@@ -47,12 +52,13 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	//Checks amount of DN vs the replication factor
 	var replicationFactor int
 	if numDn == 0 { //There are no DN
-		//TODO fail write (DONE?)
 		myRes := shared.CreateFileNameNodeResponse{}
+		myRes.Err = "No data nodes to store to"
 		js, err := convertObjectToJson(myRes)
 		errorPrint(err)
 		write.Header().Set("Content-Type", "application/json")
-		write.Write(js)
+		_, err = write.Write(js)
+		errorPrint(err)
 		return
 	} else if numDn < repFact { //don't have enough DN for replication factor
 		replicationFactor = numDn
@@ -61,7 +67,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	}
 
 	//This chooses DN for each block
-	j := 0 //index of the DataNode list
+	//j := 0 //index of the DataNode list
 	myRes := shared.CreateFileNameNodeResponse{}
 	myRes.BlockInfos = make([]shared.BlockInfo, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
@@ -69,10 +75,10 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		blockList.BlockId = myReq.FileName + "_" + strconv.Itoa(i)
 		blockList.DnList = make([]string, replicationFactor)
 		for k := 0; k < replicationFactor; k++ {
-			blockList.DnList[k] = dnList[j]
-			j++
-			if j == numDn {
-				j = 0
+			blockList.DnList[k] = dnList[currentDn].dnIP
+			currentDn++
+			if currentDn == numDn {
+				currentDn = 0
 			}
 		}
 		myRes.BlockInfos[i] = blockList
@@ -86,7 +92,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	for i := 0; i < blocksRequired; i++ {
 		blockList := blockList{}
 		/*for j := 0; j < repFact; j++ {
-			blockList.DnList[j] = ""
+			blockList.DnListDnList[j] = ""
 		}*/
 		fileToStore.BlockLists[i] = blockList
 	}
@@ -98,6 +104,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	js, err := convertObjectToJson(myRes)
 	errorPrint(err)
 	write.Header().Set("Content-Type", "application/json")
-	write.Write(js)
-	log.Println("FILE CREATED")
+	_, err = write.Write(js)
+	errorPrint(err)
+	log.Print("File ", myReq.FileName, " created\n")
 }

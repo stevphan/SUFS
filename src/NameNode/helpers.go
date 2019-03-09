@@ -1,36 +1,25 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 )
-
-func convertObjectToJsonBuffer(object interface{}) (*bytes.Buffer, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return nil, err
-	}
-
-	buffer := bytes.NewBuffer(data)
-
-	return buffer, nil
-}
 
 func convertObjectToJson(object interface{}) ([]byte, error) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		return nil, err
 	}
-
 	return data, nil
 }
 
 func writeFilesToDisk() {
 	js, _ := json.MarshalIndent(files, "", " ")
 	err := ioutil.WriteFile(saveData, js, 0644)
+	//log.Println(files)
 	errorPrint(err)
 }
 
@@ -61,4 +50,13 @@ func findFile(fileName string) (found bool, fileIndex int) {
 		}
 	}
 	return false, -1
+}
+
+func addToDnList(ip string) {
+	tempDn := dataNodeList{}
+	tempDn.dnIP = ip
+	tempDn.dnTime = time.Now()
+	dnList = append(dnList, tempDn)
+	log.Print("Added ", ip, " to dnList\n")
+	numDn++
 }
