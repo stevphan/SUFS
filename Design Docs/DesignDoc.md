@@ -8,7 +8,7 @@ We are using RESTful endpoints to communicate between the components. Only JSON 
 
 #### Create File Request
 
-path: "/createFile"
+PUT /file
 
 ```json
 {
@@ -35,7 +35,7 @@ path: "/createFile"
 
 #### Get File Request
 
-path: "/getFile"
+GET /file
 
 ```json
 {
@@ -61,7 +61,7 @@ path: "/getFile"
 
 #### Block Report Request
 
-path: "/blockReport"
+PUT /blockReport
 
 ```json
 {
@@ -78,15 +78,29 @@ path: "/blockReport"
 }
 ```
 
-#### Heartbeat
+#### Heartbeat Request
 
-<span style="color:red">FINISH ME</span>
+PUT /heartbeat
+
+```json
+{
+    "MyIp": string, // the public IP address of the sending Data Node
+}
+```
+
+#### Heartbeat Response
+
+```json
+{
+    "Error": string // description of the error, empty means no error
+}
+```
 
 ### Data Node API
 
 #### Store Block Request
 
-path: "/storeBlock"
+PUT /block
 
 ```json
 {
@@ -108,7 +122,7 @@ path: "/storeBlock"
 
 #### Get Block Request
 
-path: "/getBlock"
+GET /block
 
 ```json
 {
@@ -198,7 +212,6 @@ The Data Node will store the block if it's address is in the Data Node list in t
 
 * Block Size: 64MB
 * Replication Factor: 3
-* Total DataNode: 4
 
 ## Project State
 

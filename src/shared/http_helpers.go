@@ -12,7 +12,8 @@ const (
 	PathFile        string = "/file"        // GET, PUT
 	PathBlock       string = "/block"       // GET, PUT
 	PathBlockReport string = "/blockReport" // PUT
-	PathHeartBeat   string = "/heartBeat"   // PUT
+	PathHeartbeat   string = "/heartbeat"   // PUT
+	PathReplication string = "/replicate"   // POST
 )
 
 func ServeCall(pattern string, handlers map[string]func(http.ResponseWriter, *http.Request)) {

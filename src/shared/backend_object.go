@@ -1,6 +1,6 @@
 package shared
 
-// Create
+// Create File
 
 type CreateFileNameNodeRequest struct {
 	FileName string `json:"FileName"`
@@ -22,7 +22,7 @@ type StoreBlockResponse struct {
 	Err string `json:"Error"`
 }
 
-// Get
+// Get File
 
 type GetFileNameNodeRequest struct {
 	FileName string `json:"FileName"`
@@ -42,7 +42,7 @@ type GetBlockResponse struct {
 	Err   string `json:"Error"`
 }
 
-//Block Report
+// Block Report
 
 type BlockReportRequest struct {
 	MyIp     string   `json:"MyIp"`
@@ -53,7 +53,7 @@ type BlockReportResponse struct {
 	Err string `json:"Error"`
 }
 
-//Heartbeat
+// Heartbeat
 
 type HeartbeatRequest struct {
 	MyIp string `json:"MyIp"`
@@ -63,7 +63,7 @@ type HeartbeatResponse struct {
 	Err string `json:"Error"`
 }
 
-//Replication Check
+// Replication Check
 
 type ReplicationRequest struct {
 	BlockId string   `json:"BlockId"`
