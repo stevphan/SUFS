@@ -7,8 +7,8 @@ import (
 	"shared"
 )
 
-func createFile(args []string) {
-	nameNodeAddr, filename, s3Url := parseCreateFileArgs(args)
+func createFile(command string, args []string) {
+	nameNodeAddr, filename, s3Url := parseCreateFileArgs(command, args)
 
 	fileData := downloadS3File(s3Url)
 
@@ -19,13 +19,13 @@ func createFile(args []string) {
 	storeAllBlocks(createFileResponse, blocks)
 }
 
-func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
+func parseCreateFileArgs(command string, args []string) (nameNodeAddr, filename, s3Url string) {
 	fmtArgs := stringsMap(args, func(s string) string { return "'" + s + "'" })
 	verboseMessage := fmt.Sprintf("create file with args: %v", fmtArgs)
 	shared.VerbosePrintln(verboseMessage)
 
-	if len(args) != 4 {
-		log.Fatalf("Input Error: Must use create-file in the following format '%s create-file <name-node-address> <filename> <s3-url>'\n", args[0])
+	if len(args) != 3 {
+		log.Fatalf("Input Error: Must use create-file in the following format '%s create-file <name-node-address> <filename> <s3-url>'\n", command)
 	}
 
 	nameNodeAddr = args[0]
