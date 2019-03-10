@@ -24,7 +24,7 @@ func main() {
 	 */
 	ipAddressRes, _ :=  http.Get("http://169.254.169.254/latest/meta-data/public-ipv4")
 	body, _ := ioutil.ReadAll(ipAddressRes.Body)
-	selfAddress = string(body)
+	selfAddress = string(body) + ":8080"
 	log.Print("MyIp: ", selfAddress, "\n")
 
 	nameNodeAddress = os.Args[1]

@@ -18,6 +18,7 @@ var (
 )
 
 func createFile(write http.ResponseWriter, req *http.Request) { //needs to return list of dataNodes per block
+	defer req.Body.Close()
 	var blocksRequired int
 
 	decoder := json.NewDecoder(req.Body)

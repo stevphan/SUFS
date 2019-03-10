@@ -8,6 +8,13 @@ We are using RESTful endpoints to communicate between the components. Only JSON 
 
 #### Create File Request
 
+Adds a new entry to the map of files, the key being the filename and value being an array of blocks.
+Creates blocks, each with their own id and DnList (list of the data nodes they are stored in) and stores to the map under the given filename.
+Number of blocks created is the number needed to fit the given file size with a block size of 64 MB.
+The DnList of each block will be initial empty until a block report is received with that block being stored.
+
+
+
 PUT /file
 
 ```json
@@ -18,6 +25,11 @@ PUT /file
 ```
 
 #### Create File Response
+
+BlockInfos stores as many blocks as there needs to be in order to store the file.
+BlockId is the unique id given to the specific block.
+The DataNodeList is built using the data nodes known to the name nodes.
+Returns the info for the CLI needs to store the blocks.
 
 ```json
 {
@@ -35,6 +47,8 @@ PUT /file
 
 #### Get File Request
 
+Using the passed in file name, attempts to find the file in the map for files.
+
 GET /file
 
 ```json
@@ -44,6 +58,9 @@ GET /file
 ```
 
 #### Get File Response
+
+If the map returns a value, it then stores the blocks and their respective DataNodeLists into BlockInfos.
+Returns the info for the CLI needs to store the blocks.
 
 ```json
 {
@@ -61,6 +78,10 @@ GET /file
 
 #### Block Report Request
 
+First checks if MyIp is in the DnList for the known DataNodes, if not then it is added. 
+The name node then goes through each received BlockId and adds the requesting Data Node's 
+information to that block's DnList in the map.
+
 PUT /blockReport
 
 ```json
@@ -72,6 +93,9 @@ PUT /blockReport
 
 #### Block Report Response
 
+Only fills out Error if their was an error in the execution of the request.
+Happy Path, Error is nil.
+
 ```json
 {
     "Error": string // description of the error, empty means no error
@@ -79,6 +103,8 @@ PUT /blockReport
 ```
 
 #### Heartbeat Request
+
+Delays the time till the Data Node at MyIp is considered dead.
 
 PUT /heartbeat
 
@@ -90,6 +116,9 @@ PUT /heartbeat
 
 #### Heartbeat Response
 
+Only fills out Error if their was an error in the execution of the request.
+Happy Path, Error is nil.
+
 ```json
 {
     "Error": string // description of the error, empty means no error
@@ -100,7 +129,12 @@ PUT /heartbeat
 
 #### Store Block Request
 
-PUT /block
+PUT /block checks its own IP is contained in the DataNodeList. If it is, then it stores the
+block into the DataNode's directory and removes itself from the DataNodeList. It then forwards
+the JSON payload to the first DataNode contained in the DataNodeList. This
+process repeats until the DataNodeList is empty, signifying that forwarding is complete and the
+blocks have been all stored and forwarded
+
 
 ```json
 {
@@ -122,7 +156,10 @@ PUT /block
 
 #### Get Block Request
 
-GET /block
+GET /block checks if the BlockId is contained within the DataNode's block directory. 
+If it exists, it base64 encodes the block data into a JSON payload and returns it with
+an empty 'Error' string. If an error occurs, then the it returns a JSON payload of just
+an error without any Block data.
 
 ```json
 {
@@ -138,6 +175,30 @@ GET /block
     "Error": string // description of the error, empty means no error
 }
 ```
+
+#### Replicate Block Request
+
+POST /replicate checks if it has the given BlockId, and if it doesn't then returns an error that
+it does not contain the BlockId. If it does, then it essentially calls a store block request
+on that BlockId onto the given DataNodeList, letting it forward itself to the DataNodes in the
+DnList.
+
+
+```json
+{
+	BlockId string   `json:"BlockId"`
+	DnList  []string `json:"DataNodeList"`
+}
+```
+
+#### Replicate Block Response
+
+```json
+{
+	Err string `json:"Error"` // empty means no error
+}
+```
+
 
 ### CLI
 

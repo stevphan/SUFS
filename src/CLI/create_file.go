@@ -29,9 +29,9 @@ func parseCreateFileArgs(command string, args []string) (nameNodeAddr, filename,
 		log.Fatalf("Input Error: Must use create-file in the following format '%s create-file <name-node-address> <filename> <s3-url>'\n", command)
 	}
 
-	nameNodeAddr = args[0]
-	filename = args[1]
-	s3Url = args[2]
+	nameNodeAddr = args[1]
+	filename = args[2]
+	s3Url = args[3]
 
 	return
 }
