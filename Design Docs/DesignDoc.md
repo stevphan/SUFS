@@ -8,14 +8,12 @@ We are using RESTful endpoints to communicate between the components. Only JSON 
 
 #### Create File Request
 
+PUT /file
+
 Adds a new entry to the map of files, the key being the filename and value being an array of blocks.
 Creates blocks, each with their own id and DnList (list of the data nodes they are stored in) and stores to the map under the given filename.
 Number of blocks created is the number needed to fit the given file size with a block size of 64 MB.
 The DnList of each block will be initial empty until a block report is received with that block being stored.
-
-
-
-PUT /file
 
 ```json
 {
@@ -47,9 +45,9 @@ Returns the info for the CLI needs to store the blocks.
 
 #### Get File Request
 
-Using the passed in file name, attempts to find the file in the map for files.
-
 GET /file
+
+Using the passed in file name, attempts to find the file in the map for files.
 
 ```json
 {
@@ -78,11 +76,11 @@ Returns the info for the CLI needs to store the blocks.
 
 #### Block Report Request
 
-First checks if MyIp is in the DnList for the known DataNodes, if not then it is added. 
-The name node then goes through each received BlockId and adds the requesting Data Node's 
-information to that block's DnList in the map.
-
 PUT /blockReport
+
+First checks if MyIp is in the DnList for the known DataNodes, if not then it is added.
+The name node then goes through each received BlockId and adds the requesting Data Node's
+information to that block's DnList in the map.
 
 ```json
 {
@@ -104,9 +102,9 @@ Happy Path, Error is nil.
 
 #### Heartbeat Request
 
-Delays the time till the Data Node at MyIp is considered dead.
-
 PUT /heartbeat
+
+Delays the time till the Data Node at MyIp is considered dead.
 
 ```json
 {
@@ -129,12 +127,13 @@ Happy Path, Error is nil.
 
 #### Store Block Request
 
-PUT /block checks its own IP is contained in the DataNodeList. If it is, then it stores the
+PUT /block
+
+Checks its own IP is contained in the DataNodeList. If it is, then it stores the
 block into the DataNode's directory and removes itself from the DataNodeList. It then forwards
 the JSON payload to the first DataNode contained in the DataNodeList. This
 process repeats until the DataNodeList is empty, signifying that forwarding is complete and the
 blocks have been all stored and forwarded
-
 
 ```json
 {
@@ -156,7 +155,9 @@ blocks have been all stored and forwarded
 
 #### Get Block Request
 
-GET /block checks if the BlockId is contained within the DataNode's block directory. 
+GET /block
+
+Checks if the BlockId is contained within the DataNode's block directory.
 If it exists, it base64 encodes the block data into a JSON payload and returns it with
 an empty 'Error' string. If an error occurs, then the it returns a JSON payload of just
 an error without any Block data.
@@ -178,16 +179,19 @@ an error without any Block data.
 
 #### Replicate Block Request
 
-POST /replicate checks if it has the given BlockId, and if it doesn't then returns an error that
+POST /replicate
+
+Checks if it has the given BlockId, and if it doesn't then returns an error that
 it does not contain the BlockId. If it does, then it essentially calls a store block request
 on that BlockId onto the given DataNodeList, letting it forward itself to the DataNodes in the
 DnList.
 
-
 ```json
 {
-	BlockId string   `json:"BlockId"`
-	DnList  []string `json:"DataNodeList"`
+    "BlockId": string, // the internal ID of the block
+    "DataNodeList": [ // list of Data Nodes the block should be stored on
+                string // IP address and port of the Data Node (ex: "10.0.0.1:8080")
+    ]
 }
 ```
 
@@ -195,10 +199,9 @@ DnList.
 
 ```json
 {
-	Err string `json:"Error"` // empty means no error
+    "Error": string // description of the error, empty means no error
 }
 ```
-
 
 ### CLI
 
