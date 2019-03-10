@@ -11,6 +11,7 @@ import (
 func heartBeat(write http.ResponseWriter, req *http.Request) {
 	myRes := shared.HeartbeatResponse{}
 
+	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 	myReq := shared.HeartbeatRequest{}
 	err := decoder.Decode(&myReq)

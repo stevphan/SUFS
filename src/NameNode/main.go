@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"shared"
 )
 
 const (
@@ -34,10 +35,24 @@ func main() {
 	go dataNodeDead()
 
 	log.Println("NameNode Running")
-	http.HandleFunc("/createFile", createFile)
+	filePath := make(map[string]func(http.ResponseWriter, *http.Request))
+	filePath[http.MethodGet] = getFile
+	filePath[http.MethodPut] = createFile
+	shared.ServeCall(shared.PathFile, filePath)
+
+	blockReportPath := make(map[string]func(http.ResponseWriter, *http.Request))
+
+	blockReportPath[http.MethodPut] = blockReport
+	shared.ServeCall(shared.PathBlockReport, blockReportPath)
+
+	heartbeatPath := make(map[string]func(http.ResponseWriter, *http.Request))
+	heartbeatPath[http.MethodPut] = heartBeat
+	shared.ServeCall(shared.PathHeartbeat, blockReportPath)
+
+	/*http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
 	http.HandleFunc("/blockReport", blockReport)
-	http.HandleFunc("/heartBeat", heartBeat)
+	http.HandleFunc("/heartBeat", heartBeat)*/
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

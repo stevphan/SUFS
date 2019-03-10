@@ -8,6 +8,7 @@ import (
 )
 
 func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode list per block
+	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 	myReq := shared.GetFileNameNodeRequest{}
 	err := decoder.Decode(&myReq)
