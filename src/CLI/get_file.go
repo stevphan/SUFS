@@ -126,8 +126,17 @@ func getSingleBlockFromDataNode(request shared.GetBlockRequest, nodeAddr string)
 		return "", false
 	}
 
-	url := "http://" + nodeAddr + "/getBlock"
-	res, err := http.Post(url, "application/json", buffer)
+	url := "http://" + nodeAddr + shared.PathBlock
+	req, err := http.NewRequest(http.MethodGet, url, buffer)
+	if err != nil {
+		log.Println("Error creating request to data node:", err)
+		return "", false
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	client := http.Client{}
+	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Error while communicating with the data node:", err)
 		return "", false
