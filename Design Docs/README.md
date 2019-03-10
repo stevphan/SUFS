@@ -1,12 +1,14 @@
+# Notes for Creating Design Documents
+
 ## Create File Sequence Diagram
 
 ![Create File Sequence Diagram](Create_File_Sequence_Diagram.png)
 
 ### Recreate Diagram
 
-https://www.websequencediagrams.com
+[](https://www.websequencediagrams.com)
 
-```
+```websequencediagrams
 title Create File Sequence Diagram
 
 User->+CLI: CreateFile(name, S3-URL)
@@ -37,7 +39,7 @@ end
 
 ![Get File Sequence Diagram](Get_File_Sequence_Diagram.png)
 
-```
+```websequencediagrams
 title Get File Sequence Diagram
 
 User->+CLI: GetFile(name, saveLocation)
@@ -60,7 +62,7 @@ CLI->-User: Result
 
 ![Data Node Bootstrap Sequence Diagram](Data_Node_Bootstrap_Sequence_Diagram.png)
 
-```
+```websequencediagrams
 title Data Node Bootstrap Sequence Diagram
 
 Data Node->+Data Node: Initialize()
