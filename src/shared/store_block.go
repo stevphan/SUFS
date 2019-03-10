@@ -19,16 +19,25 @@ func StoreSingleBlock(storeBlockReq StoreBlockRequest) bool {
 func StoreSingleToDataNode(storeBlockReq StoreBlockRequest, dataNodeIp string) bool {
 	VerbosePrintln(fmt.Sprintf("Attempting to save block to data node '%s'", dataNodeIp))
 
-	dataNodeUrl := "http://" + dataNodeIp + "/storeBlock"
 	buffer, err := ConvertObjectToJsonBuffer(storeBlockReq)
 	if err != nil {
 		VerbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
 		return false
 	}
 
-	res, err := http.Post(dataNodeUrl, "application/json", buffer)
+	url := "http://" + dataNodeIp + PathBlock
+	req, err := http.NewRequest(http.MethodPut, url, buffer)
 	if err != nil {
-		VerbosePrintln(fmt.Sprint("Error while communicating to the data node:", err))
+		VerbosePrintln(fmt.Sprintln("Error creating request to data node:", err))
+		return false
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	client := http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		VerbosePrintln(fmt.Sprintln("Error while communicating with the data node:", err))
 		return false
 	}
 

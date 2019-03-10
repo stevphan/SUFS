@@ -11,6 +11,7 @@ import (
 func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothing, this is what happens when a block report is received
 	myRes := shared.BlockReportResponse{}
 
+	defer req.Body.Close()
 	decoder := json.NewDecoder(req.Body)
 	myReq := shared.BlockReportRequest{}
 	err := decoder.Decode(&myReq)

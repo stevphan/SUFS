@@ -11,7 +11,7 @@ import (
 const (
 	// system constants
 	blockSize       int = 64 * 1024 * 1024 // 64MB
-	nameNodeTimeout     = time.Duration(5 * time.Second)
+	nameNodeTimeout     = time.Duration(10 * time.Second)
 
 	// actions
 	actionCreateFile    string = "create-file"

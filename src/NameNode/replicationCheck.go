@@ -91,7 +91,7 @@ func checkFailed(fileName string, blockIndex int) {
 	k := 0
 	response := false
 	for k < len(tempBlocks[blockIndex].DnList) && !response { //For potential error in communicating
-		dataNodeUrl := "http://" + tempBlocks[blockIndex].DnList[k] + "/replicateBlocks"
+		dataNodeUrl := "http://" + tempBlocks[blockIndex].DnList[k] + shared.PathReplication
 		buffer, err := shared.ConvertObjectToJsonBuffer(myReq)
 		log.Print("Calling Dn at ", dataNodeUrl, "\n")
 		_, err = http.Post(dataNodeUrl,"application/json", buffer)

@@ -32,6 +32,7 @@ func readFilesFromDisk() {
 		writeFilesToDisk()
 		return
 	}
+	defer tempFile.Close()
 	decoder := json.NewDecoder(tempFile)
 	myFile := file{}
 	err = decoder.Decode(&myFile)

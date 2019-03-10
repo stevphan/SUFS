@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"net/http"
 	"shared"
 )
 
@@ -42,7 +43,7 @@ func createFileInNameNode(nameNodeAddr, filename, size string) (createFileRespon
 		FileName: filename,
 		Size:     size,
 	}
-	sendRequestToNameNode(nameNodeAddr, "createFile", createFileRequest, &createFileResponse)
+	sendRequestToNameNode(nameNodeAddr, shared.PathFile, http.MethodPut, createFileRequest, &createFileResponse)
 
 	if createFileResponse.Err != "" {
 		log.Fatalln(createFileResponse.Err)
