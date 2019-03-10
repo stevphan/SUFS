@@ -32,17 +32,22 @@ func stringsMap(strs []string, mapper func(string) string) []string {
 	return result
 }
 
-func sendRequestToNameNode(nameNodeAddr, path string, request interface{}, response interface{}) {
-	buffer, err := shared.ConvertObjectToJsonBuffer(request)
-	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
+func sendRequestToNameNode(nameNodeAddr, path, method string, apiRequest interface{}, apiResponse interface{}) {
+	buffer, err := shared.ConvertObjectToJsonBuffer(apiRequest)
+	shared.CheckErrorAndFatal("Error while communicating with the name node", err)
 
-	url := "http://" + nameNodeAddr + "/" + path
+	url := "http://" + nameNodeAddr + path
 
 	client := http.Client{Timeout: nameNodeTimeout}
-	res, err := client.Post(url, "application/json", buffer)
-	shared.CheckErrorAndFatal("Error while communicating with the name node:", err)
+	req, err := http.NewRequest(method, url, buffer)
+	shared.CheckErrorAndFatal("Error creating request to name node", err)
 
-	err = shared.ObjectFromResponse(res, response)
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	shared.CheckErrorAndFatal("Error while communicating with the name node", err)
+
+	err = shared.ObjectFromResponse(res, apiResponse)
 	shared.CheckErrorAndFatal("Unable to parse response", err)
 
 	return
