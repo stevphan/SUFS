@@ -25,7 +25,7 @@ func dnCheck() {
 			removeFromDnList(i)
 		}
 	}
-	log.Println(dnList)
+	//log.Println(dnList)
 	log.Println("dnCheck complete")
 }
 

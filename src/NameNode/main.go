@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -31,6 +32,7 @@ func main() {
 	go replicationCheck()
 	go dataNodeDead()
 
+	log.Println("NameNode Running")
 	http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
 	http.HandleFunc("/blockReport", blockReport)

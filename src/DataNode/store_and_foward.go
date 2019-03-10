@@ -29,11 +29,27 @@ func isError(err error) bool {
 }
 
 func removeSelf(storeReq shared.StoreBlockRequest) {
-	for i, v := range storeReq.DnList {
+	/*for i, v := range storeReq.DnList {
 		if v == selfAddress {
 			storeReq.DnList = append(storeReq.DnList[:i], storeReq.DnList[i+1:]...)
 			break
 		}
+	}*/
+	dnIndex := -1
+	found := false
+	i := 0
+	for i < len(storeReq.DnList) && !found {
+		if storeReq.DnList[i] == selfAddress {
+			found = true
+			dnIndex = i
+		}
+		i++
+	}
+
+	if found {
+		storeReq.DnList[dnIndex] = storeReq.DnList[len(storeReq.DnList)-1]
+		storeReq.DnList[len(storeReq.DnList)-1] = ""
+		storeReq.DnList = storeReq.DnList[:len(storeReq.DnList)-1]
 	}
 }
 
@@ -91,20 +107,32 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	//fmt.Println("")
 
 
-	path := directory + storeReq.BlockId
+	path := directory + "/" + storeReq.BlockId
 
 	// does blocks exists first and foremost? if not, create /blocks/
 	if !exists(directory) {
-		os.MkdirAll(directory, os.ModePerm)
+		_ = os.MkdirAll(directory, os.ModePerm)
 	}
 
 	// if block is already contained, then find self (if self in DnList) and then forward
 	if exists(path) {
 		removeSelf(storeReq)
 		shared.StoreSingleBlock(storeReq)
+
+		//done
+		storeResp := shared.StoreBlockResponse{}
+		js, _ := convertObjectToJson(storeResp)
+		write.Header().Set("Content-Type", "application/json")
+		_, err = write.Write(js)
+		return
 	}
 	// if list is empty, then just stop
 	if len(storeReq.DnList) < 1 {
+		//done
+		storeResp := shared.StoreBlockResponse{}
+		js, _ := convertObjectToJson(storeResp)
+		write.Header().Set("Content-Type", "application/json")
+		_, err = write.Write(js)
 		return
 	}
 
@@ -136,5 +164,9 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	// forward without self in DnList
 	shared.StoreSingleBlock(storeReq)
 
+	storeResp := shared.StoreBlockResponse{}
+	js, err := convertObjectToJson(storeResp)
+	write.Header().Set("Content-Type", "application/json")
+	_, err = write.Write(js)
 }
 

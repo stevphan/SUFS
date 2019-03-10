@@ -14,7 +14,7 @@ import (
 var (
 	selfAddress string
 	nameNodeAddress string
-	directory = "/Users/stxv/blocks/" // for testing purposes, change later!
+	directory string // for testing purposes, change later!
 )
 
 func main() {
@@ -34,6 +34,9 @@ func main() {
 	// accessible var so other store_and_forward can check if self in DnList
 	selfAddress = addr
 
+	nameNodeAddress = os.Args[2]
+
+	directory = os.Args[3]
 	// os.Args[2] == nameNodeAddress
 
 	/*

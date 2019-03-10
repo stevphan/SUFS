@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"Shared"
 	"strconv"
@@ -17,7 +18,6 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 	found := false
 	fileIndex := -1 //Index of the file found
 	if files.NumFiles < 1 {
-		//TODO fail write (DONE?)
 		myRes := shared.GetFileNameNodeResponse{}
 		myRes.Err = "No files found"
 		js, err := convertObjectToJson(myRes)
@@ -46,6 +46,7 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 		return
 	}
 
+	log.Print("Getting file ", myReq.FileName, "\n")
 	//Gets the blocks and DnList for the file
 	myRes := shared.GetFileNameNodeResponse{}
 	myRes.BlockInfos = make([]shared.BlockInfo, files.MetaData[fileIndex].NumBlocks)

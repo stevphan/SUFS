@@ -23,6 +23,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 	found := false
 	if numDn < 1 {
 		addToDnList(myReq.MyIp)
+		found = true
 	} else {
 		i := 0
 		for !found && i < numDn {

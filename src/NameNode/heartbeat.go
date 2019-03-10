@@ -3,6 +3,7 @@ package main
 import (
 	"Shared"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
@@ -14,6 +15,8 @@ func heartBeat(write http.ResponseWriter, req *http.Request) {
 	myReq := shared.HeartbeatRequest{}
 	err := decoder.Decode(&myReq)
 	errorPrint(err)
+
+	log.Print("Heartbeat from ", myReq.MyIp, "\n")
 
 	i := 0
 	found := false
