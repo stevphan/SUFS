@@ -24,8 +24,14 @@ func writeFilesToDisk() {
 }
 
 func readFilesFromDisk() {
+	files.MetaData = make(map[string][]blocks)
+	files.LastId = 0
 	tempFile, err := os.Open(saveData)
-	errorPrint(err)
+	if err != nil {
+		errorPrint(err)
+		writeFilesToDisk()
+		return
+	}
 	decoder := json.NewDecoder(tempFile)
 	myFile := file{}
 	err = decoder.Decode(&myFile)
@@ -41,7 +47,7 @@ func errorPrint(err error) {
 
 //Returns true if file name found plus the index it is in the files.metadata[]
 //Returns false if file name not found plus index of -1
-func findFile(fileName string) (found bool, fileIndex int) {
+/*func findFile(fileName string) (found bool, fileIndex int) {
 	//if files.NumFiles > 0 {
 	if len(files.MetaData) > 0 {
 		//for i := 0; i < files.NumFiles; i++ {
@@ -52,7 +58,7 @@ func findFile(fileName string) (found bool, fileIndex int) {
 		}
 	}
 	return false, -1
-}
+}*/
 
 func addToDnList(ip string) {
 	tempDn := dataNodeList{}
@@ -61,4 +67,9 @@ func addToDnList(ip string) {
 	dnList = append(dnList, tempDn)
 	log.Print("Added ", ip, " to dnList\n")
 	//numDn++
+}
+
+func getNewBlockId() int64 {
+	files.LastId++
+	return files.LastId
 }

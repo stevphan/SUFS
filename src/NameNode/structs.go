@@ -2,7 +2,7 @@ package main
 
 import "time"
 
-type file struct { //wrapper for easy read/writing
+/*type file struct { //wrapper for easy read/writing
 	//NumFiles int
 	MetaData []fileMetaData
 }
@@ -15,6 +15,16 @@ type fileMetaData struct {
 
 type blockList struct {
 	DnList []string //stores IP of DNs it is stored at
+}*/
+
+type file struct { //wrapper for easy read/writing
+	LastId		int64
+	MetaData 	map[string][]blocks
+}
+
+type blocks struct {
+	Id 			string
+	DnList 		[]string
 }
 
 type dataNodeList struct {

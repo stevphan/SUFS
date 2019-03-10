@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -41,17 +39,46 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 	}
 
 	var ipFound bool
-	var j int //index for a block's dnList
 	for i := 0; i < len(myReq.BlockIds); i++ {
 		ipFound = false
-		temp := strings.Split(myReq.BlockIds[i], "_")
+		/*temp := strings.Split(myReq.BlockIds[i], "_")
 		fileName, blockNum := temp[0], temp[1]
 		blockId, err := strconv.Atoi(blockNum)
 		errorPrint(err)
-		found, fileIndex := findFile(fileName)
+		found, fileIndex := findFile(fileName)*/
+
+		var blockFileName string
+		var blockIndex int
+		var j int //index of values
+		found := false
+		for key, value := range files.MetaData { //TODO end this when found
+			j = 0
+			for j < len(value) && !found {
+				if value[j].Id == myReq.BlockIds[i] {
+					found = true
+					blockFileName = key
+					blockIndex = j
+				}
+				j++
+			}
+		}
+
 		if found {
+			tempBlocks := files.MetaData[blockFileName]
+			j = 0
+			for j < len(tempBlocks[blockIndex].DnList) && !ipFound {
+				if tempBlocks[blockIndex].DnList[j] == myReq.MyIp {
+					ipFound = true
+				}
+				j++
+			}
+			if !ipFound {
+				tempBlocks[blockIndex].DnList = append(tempBlocks[blockIndex].DnList, myReq.MyIp)
+				files.MetaData[blockFileName] = tempBlocks
+			}
+
 			//if blockId < files.MetaData[fileIndex].NumBlocks { //makes sure blockId exist
-			if blockId < len(files.MetaData[fileIndex].BlockLists) { //makes sure blockId exist
+			/*if blockId < len(files.MetaData[fileIndex].BlockLists) { //makes sure blockId exist
 				//for j := 0; j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); j++ {
 				j = 0
 				for j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !ipFound {
@@ -63,7 +90,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 				if !ipFound {
 					files.MetaData[fileIndex].BlockLists[blockId].DnList = append(files.MetaData[fileIndex].BlockLists[blockId].DnList, myReq.MyIp)
 				}
-			}
+			}*/
 		}
 	}
 	writeFilesToDisk()
