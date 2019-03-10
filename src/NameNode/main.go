@@ -46,7 +46,7 @@ func main() {
 
 	heartbeatPath := make(map[string]func(http.ResponseWriter, *http.Request))
 	heartbeatPath[http.MethodPut] = heartBeat
-	shared.ServeCall(shared.PathHeartbeat, blockReportPath)
+	shared.ServeCall(shared.PathHeartbeat, heartbeatPath)
 
 	/*http.HandleFunc("/createFile", createFile)
 	http.HandleFunc("/getFile", getFile)
