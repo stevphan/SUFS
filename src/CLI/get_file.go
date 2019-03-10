@@ -83,8 +83,10 @@ func createSaveLocation(saveLocation string) *os.File {
 func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.File) {
 	defer file.Close()
 
+	shared.VerbosePrintln(fmt.Sprintf("Attempting to get '%d' block(s)", len(getFileResponse.BlockInfos)))
+
 	for i, info := range getFileResponse.BlockInfos {
-		block, success := getSingleBlock(info)
+		block, success := getSingleBlock(info, len(getFileResponse.BlockInfos))
 		if !success {
 			os.Remove(file.Name())
 			log.Fatalf("Unable to get block %d/%d\n", i, len(getFileResponse.BlockInfos))
@@ -100,8 +102,8 @@ func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.F
 	}
 }
 
-func getSingleBlock(info shared.BlockInfo) (string, bool) {
-	shared.VerbosePrintln("Attempting to get block from data node")
+func getSingleBlock(info shared.BlockInfo, blockNumber int) (string, bool) {
+	shared.VerbosePrintln(fmt.Sprintf("%d. Attempting to get block '%s' from data node", blockNumber, info.BlockId))
 
 	for _, dn := range info.DnList {
 		getBlockRequest := shared.GetBlockRequest{
