@@ -6,7 +6,7 @@
 
 ### Recreate Diagram
 
-[](https://www.websequencediagrams.com)
+[Web Sequence Diagram](https://www.websequencediagrams.com)
 
 ```websequencediagrams
 title Create File Sequence Diagram
@@ -51,7 +51,7 @@ CLI->CLI: CreateLocalFile(saveLocation)
 loop per BlockID
 CLI->CLI: DetermineDataNode(DataNodeList)
 CLI->+DeterminedDataNode: GetBlock(BlockID)
-DeterminedDataNode->CLI: Block
+DeterminedDataNode->-CLI: Block
 CLI->CLI: AddBlockToFile(saveLocation)
 end
 
@@ -72,8 +72,15 @@ Data Node->+Name Node: BlockReport(info, blockReport)
 Name Node->Name Node: SaveDateNodeInfo(info, blockReport)
 Name Node->-Data Node:
 
-loop periodically
+loop block report - every 30 seconds
 Data Node->Data Node: CreateBlockReport()
 Data Node->+Name Node: BlockReport(info, blockReport)
+Name Node->-Data Node:
+end
+
+loop heartbeat - every 10 seconds
+Data Node->Data Node: CreateBlockReport()
+Data Node->+Name Node: Heartbeat(info)
+Name Node->-Data Node:
 end
 ```
