@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +21,7 @@ DataNodeList
 
 func isError(err error) bool {
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 
 	return err != nil
@@ -64,7 +63,7 @@ func createFile(path string) {
 		defer file.Close()
 	}
 
-	fmt.Println("==> done creating file", path)
+	log.Println("==> done creating file", path)
 }
 
 func returnError(write http.ResponseWriter, errMessage string) {
@@ -92,7 +91,7 @@ func writeFile(path string, data string) {
 	err = file.Sync()
 	if isError(err) { return }
 
-	fmt.Println("==> done writing to file")
+	log.Println("==> done writing to file")
 }
 
 func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores Block data into current DataNode, and forwards it to the next DataNode on the list
@@ -148,7 +147,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	}
 
 	// decode block data
-	fmt.Println("Block not in Data Node! Saving...")
+	log.Println("Block not in Data Node! Saving...")
 	decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
 
 	if err != nil {
