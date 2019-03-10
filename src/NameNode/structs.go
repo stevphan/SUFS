@@ -2,19 +2,29 @@ package main
 
 import "time"
 
-type file struct {
-	NumFiles int
+/*type file struct { //wrapper for easy read/writing
+	//NumFiles int
 	MetaData []fileMetaData
 }
 
 type fileMetaData struct {
 	FileName   string
-	NumBlocks  int
+	//NumBlocks  int
 	BlockLists []blockList
 }
 
 type blockList struct {
 	DnList []string //stores IP of DNs it is stored at
+}*/
+
+type file struct { //wrapper for easy read/writing
+	LastId		int64
+	MetaData 	map[string][]blocks
+}
+
+type blocks struct {
+	Id 			string
+	DnList 		[]string
 }
 
 type dataNodeList struct {

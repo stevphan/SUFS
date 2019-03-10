@@ -20,7 +20,8 @@ func heartBeat(write http.ResponseWriter, req *http.Request) {
 
 	i := 0
 	found := false
-	for i < numDn && !found {
+	//for i < numDn && !found {
+	for i < len(dnList) && !found {
 		if myReq.MyIp == dnList[i].dnIP {
 			dnList[i].dnTime = time.Now()
 			found = true

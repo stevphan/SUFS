@@ -13,7 +13,7 @@ const (
 var (
 	dnList = []dataNodeList{}
 	//dnList = []string{}
-	numDn = 0
+	//numDn = 0
 	files file
 )
 /*
@@ -23,6 +23,7 @@ possibly use as argument during init (i.e. when booting main look for IP and por
 
 func main() {
 	readFilesFromDisk()
+
 	//for testing
 	/*addToDnList("localhost:8081")
 	addToDnList("localhost:8082")

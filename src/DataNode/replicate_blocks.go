@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,7 +27,7 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 
 	tempPath := directory + "/" + recoverReq.BlockId
 	if exists(tempPath) {
-		fmt.Println("found " + recoverReq.BlockId)
+		log.Println("found " + recoverReq.BlockId)
 		file, _ := os.Open(tempPath)
 		reader := bufio.NewReader(file)
 		content, _ := ioutil.ReadAll(reader)

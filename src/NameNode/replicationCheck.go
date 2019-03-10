@@ -4,7 +4,6 @@ import (
 	"Shared"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -26,47 +25,58 @@ func replicationCheck() {
 
 func repCheck() {
 	updateReplicationFactor()
-	for i := 0; i < files.NumFiles; i++ {
-		for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+	for key, value := range files.MetaData {
+		for i := 0; i < len(value); i++ {
+			if len(value[i].DnList) == 0 {
+				log.Print("Dead Block: ", value[i].Id, "\n")
+			} else if len(value[i].DnList) < replicationFactor {
+				checkFailed(key, i)
+			}
+		}
+	}
+
+	//for i := 0; i < files.NumFiles; i++ {
+	/*for i := 0; i < len(files.MetaData); i++ {
+		//for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+		for j := 0; j < len(files.MetaData[i].BlockLists); j++ {
 			if len(files.MetaData[i].BlockLists[j].DnList) == 0 {
 				log.Print("Dead Block: ", files.MetaData[i].FileName, "_", j, "\n")
 			} else if len(files.MetaData[i].BlockLists[j].DnList) < replicationFactor {
 				checkFailed(files.MetaData[i].FileName, j, i)
 			}
 		}
-	}
+	}*/
 	log.Println("repCheck complete")
 }
 
 func updateReplicationFactor() {
-	if numDn == 0 { //There are no DN
+	//if numDn == 0 { //There are no DN
+	if len(dnList) == 0 { //There are no DN
 		replicationFactor = 0
-	} else if numDn < repFact { //don't have enough DN for replication factor
-		replicationFactor = numDn
+	//} else if numDn < repFact { //don't have enough DN for replication factor
+	} else if len(dnList) < repFact { //don't have enough DN for replication factor
+		//replicationFactor = numDn
+		replicationFactor = len(dnList)
 	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
 	}
 }
 
-func checkFailed(fileName string, blockId int, fileIndex int) {
-	log.Print(fileName, "_", blockId, " replication check failed\n")
+func checkFailed(fileName string, blockIndex int) {
+	tempBlocks := files.MetaData[fileName]
+	log.Print("Replication check failed for ", fileName, ": blockId=", tempBlocks[blockIndex].Id, "\n")
 	myReq := shared.ReplicationRequest{}
-	myReq.BlockId = fileName + "_" + strconv.Itoa(blockId)
-	/*for i := 0; i < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); i++ {
-		myReq.DnList = append(myReq.DnList, files.MetaData[fileIndex].BlockLists[blockId].DnList[i])
-		numDnListed++
-	}*/
-	//myReq.DnList = files.MetaData[fileIndex].BlockLists[blockId].DnList
+	myReq.BlockId = tempBlocks[blockIndex].Id
 
 	var foundDn bool
-	numDnNeed := replicationFactor - len(files.MetaData[fileIndex].BlockLists[blockId].DnList)
+	numDnNeed := replicationFactor - len(tempBlocks[blockIndex].DnList)
 	i := 0
 	j := 0
-	for i < numDn && numDnNeed > 0{
+	for i < len(dnList) && numDnNeed > 0 {
 		foundDn = false
 		j = 0
-		for j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !foundDn{
-			if files.MetaData[fileIndex].BlockLists[blockId].DnList[j] == dnList[i].dnIP {
+		for j < len(tempBlocks[blockIndex].DnList) && !foundDn{
+			if tempBlocks[blockIndex].DnList[j] == dnList[i].dnIP {
 				foundDn = true
 			}
 			j++
@@ -80,9 +90,8 @@ func checkFailed(fileName string, blockId int, fileIndex int) {
 
 	k := 0
 	response := false
-	for k < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !response { //For potential error in communicating
-		//TODO send request to known Data Node (files.MetaData[fileIndex].BlockLists[blockId].DnList[j])
-		dataNodeUrl := "http://" + files.MetaData[fileIndex].BlockLists[blockId].DnList[k] + "/replicateBlocks"
+	for k < len(tempBlocks[blockIndex].DnList) && !response { //For potential error in communicating
+		dataNodeUrl := "http://" + tempBlocks[blockIndex].DnList[k] + "/replicateBlocks"
 		buffer, err := shared.ConvertObjectToJsonBuffer(myReq)
 		log.Print("Calling Dn at ", dataNodeUrl, "\n")
 		_, err = http.Post(dataNodeUrl,"application/json", buffer)
