@@ -20,7 +20,8 @@ func dataNodeDead() {
 }
 
 func dnCheck() {
-	for i := 0; i < numDn; i++ {
+	//for i := 0; i < numDn; i++ {
+	for i := 0; i < len(dnList); i++ {
 		if time.Now().Sub(dnList[i].dnTime) > dnDeadAfter {
 			removeFromDnList(i)
 		}
@@ -36,15 +37,17 @@ func removeFromDnList(dnIndex int) {
 	dnList[dnIndex] = dnList[len(dnList)-1]
 	dnList[len(dnList)-1] = dataNodeList{}
 	dnList = dnList[:len(dnList)-1]
-	numDn--
+	//numDn--
 }
 
 //Removes given IP from places a block is stored
 func deleteFromFiles(ip string) {
 	k := 0
 	foundIp := false
-	for i := 0; i < files.NumFiles; i++ {
-		for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+	//for i := 0; i < files.NumFiles; i++ {
+	for i := 0; i < len(files.MetaData); i++ {
+		//for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+		for j := 0; j < len(files.MetaData[i].BlockLists); j++ {
 			k = 0
 			foundIp = false
 			for k < len(files.MetaData[i].BlockLists[j].DnList) && !foundIp {

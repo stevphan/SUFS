@@ -42,8 +42,10 @@ func errorPrint(err error) {
 //Returns true if file name found plus the index it is in the files.metadata[]
 //Returns false if file name not found plus index of -1
 func findFile(fileName string) (found bool, fileIndex int) {
-	if files.NumFiles > 0 {
-		for i := 0; i < files.NumFiles; i++ {
+	//if files.NumFiles > 0 {
+	if len(files.MetaData) > 0 {
+		//for i := 0; i < files.NumFiles; i++ {
+		for i := 0; i < len(files.MetaData); i++ {
 			if files.MetaData[i].FileName == fileName {
 				return true, i
 			}
@@ -58,5 +60,5 @@ func addToDnList(ip string) {
 	tempDn.dnTime = time.Now()
 	dnList = append(dnList, tempDn)
 	log.Print("Added ", ip, " to dnList\n")
-	numDn++
+	//numDn++
 }

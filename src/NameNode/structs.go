@@ -2,14 +2,14 @@ package main
 
 import "time"
 
-type file struct {
-	NumFiles int
+type file struct { //wrapper for easy read/writing
+	//NumFiles int
 	MetaData []fileMetaData
 }
 
 type fileMetaData struct {
 	FileName   string
-	NumBlocks  int
+	//NumBlocks  int
 	BlockLists []blockList
 }
 

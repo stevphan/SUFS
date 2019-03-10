@@ -26,8 +26,10 @@ func replicationCheck() {
 
 func repCheck() {
 	updateReplicationFactor()
-	for i := 0; i < files.NumFiles; i++ {
-		for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+	//for i := 0; i < files.NumFiles; i++ {
+	for i := 0; i < len(files.MetaData); i++ {
+		//for j := 0; j < files.MetaData[i].NumBlocks; j++ {
+		for j := 0; j < len(files.MetaData[i].BlockLists); j++ {
 			if len(files.MetaData[i].BlockLists[j].DnList) == 0 {
 				log.Print("Dead Block: ", files.MetaData[i].FileName, "_", j, "\n")
 			} else if len(files.MetaData[i].BlockLists[j].DnList) < replicationFactor {
@@ -39,10 +41,13 @@ func repCheck() {
 }
 
 func updateReplicationFactor() {
-	if numDn == 0 { //There are no DN
+	//if numDn == 0 { //There are no DN
+	if len(dnList) == 0 { //There are no DN
 		replicationFactor = 0
-	} else if numDn < repFact { //don't have enough DN for replication factor
-		replicationFactor = numDn
+	//} else if numDn < repFact { //don't have enough DN for replication factor
+	} else if len(dnList) < repFact { //don't have enough DN for replication factor
+		//replicationFactor = numDn
+		replicationFactor = len(dnList)
 	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
 	}
@@ -62,7 +67,8 @@ func checkFailed(fileName string, blockId int, fileIndex int) {
 	numDnNeed := replicationFactor - len(files.MetaData[fileIndex].BlockLists[blockId].DnList)
 	i := 0
 	j := 0
-	for i < numDn && numDnNeed > 0{
+	//for i < numDn && numDnNeed > 0 {
+	for i < len(dnList) && numDnNeed > 0 {
 		foundDn = false
 		j = 0
 		for j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !foundDn{

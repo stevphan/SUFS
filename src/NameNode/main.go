@@ -13,7 +13,7 @@ const (
 var (
 	dnList = []dataNodeList{}
 	//dnList = []string{}
-	numDn = 0
+	//numDn = 0
 	files file
 )
 /*

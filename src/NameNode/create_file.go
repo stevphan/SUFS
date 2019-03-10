@@ -26,8 +26,10 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	errorPrint(err)
 
 	//Checks if the file exist
-	if files.NumFiles > 0 {
-		for i := 0; i < files.NumFiles; i++ {
+	//if files.NumFiles > 0 {
+	if len(files.MetaData) > 0 {
+		//for i := 0; i < files.NumFiles; i++ {
+		for i := 0; i < len(files.MetaData); i++ {
 			if files.MetaData[i].FileName == myReq.FileName {
 				myRes := shared.CreateFileNameNodeResponse{}
 				myRes.Err = "File with name " + myReq.FileName + " already exist"
@@ -51,7 +53,8 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	//TODO choose DN to send each block to (check size of, choose lowest) - not super important
 	//Checks amount of DN vs the replication factor
 	var replicationFactor int
-	if numDn == 0 { //There are no DN
+	//if numDn == 0 { //There are no DN
+	if len(dnList) == 0 { //There are no DN
 		myRes := shared.CreateFileNameNodeResponse{}
 		myRes.Err = "No data nodes to store to"
 		js, err := convertObjectToJson(myRes)
@@ -60,8 +63,10 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		_, err = write.Write(js)
 		errorPrint(err)
 		return
-	} else if numDn < repFact { //don't have enough DN for replication factor
-		replicationFactor = numDn
+	//} else if numDn < repFact { //don't have enough DN for replication factor
+	} else if len(dnList) < repFact { //don't have enough DN for replication factor
+		//replicationFactor = numDn
+		replicationFactor = len(dnList)
 	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
 	}
@@ -77,7 +82,8 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		for k := 0; k < replicationFactor; k++ {
 			blockList.DnList[k] = dnList[currentDn].dnIP
 			currentDn++
-			if currentDn == numDn {
+			//if currentDn == numDn {
+			if currentDn == len(dnList) {
 				currentDn = 0
 			}
 		}
@@ -87,7 +93,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	//Saves the metadata of the file, nothing in DnList yet
 	fileToStore := fileMetaData{}
 	fileToStore.FileName = myReq.FileName
-	fileToStore.NumBlocks = blocksRequired
+	//fileToStore.NumBlocks = blocksRequired
 	fileToStore.BlockLists = make([]blockList, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
 		blockList := blockList{}
@@ -96,7 +102,7 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		}*/
 		fileToStore.BlockLists[i] = blockList
 	}
-	files.NumFiles++
+	//files.NumFiles++
 	files.MetaData = append(files.MetaData, fileToStore)
 	writeFilesToDisk()
 	

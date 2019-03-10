@@ -21,12 +21,14 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 
 	//finds if the DN in the in dnList, if not add it
 	found := false
-	if numDn < 1 {
+	//if numDn < 1 {
+	if len(dnList) < 1 {
 		addToDnList(myReq.MyIp)
 		found = true
 	} else {
 		i := 0
-		for !found && i < numDn {
+		//for !found && i < numDn {
+		for !found && i < len(dnList) {
 			if dnList[i].dnIP == myReq.MyIp {
 				found = true
 				dnList[i].dnTime = time.Now() //got a response, so delay "death"
@@ -48,7 +50,8 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		errorPrint(err)
 		found, fileIndex := findFile(fileName)
 		if found {
-			if blockId < files.MetaData[fileIndex].NumBlocks { //makes sure blockId exist
+			//if blockId < files.MetaData[fileIndex].NumBlocks { //makes sure blockId exist
+			if blockId < len(files.MetaData[fileIndex].BlockLists) { //makes sure blockId exist
 				//for j := 0; j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList); j++ {
 				j = 0
 				for j < len(files.MetaData[fileIndex].BlockLists[blockId].DnList) && !ipFound {
