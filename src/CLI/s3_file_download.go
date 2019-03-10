@@ -23,7 +23,7 @@ func downloadS3File(url string) []byte {
 		Credentials: credentials.NewStaticCredentials(awsAccessId, awsSecretAccessToken, ""),
 	})
 	if err != nil {
-		log.Fatal("Unable to create session with AWS:", err)
+		log.Fatalln("Unable to create session with AWS:", err)
 	}
 
 	shared.VerbosePrintln("AWS session created")
@@ -37,7 +37,7 @@ func downloadS3File(url string) []byte {
 
 	downloadedByteCount, err := downloader.Download(outputBuffer, input)
 	if err != nil {
-		log.Fatal("Unable to download S3 bucket item:", err)
+		log.Fatalln("Unable to download S3 bucket item:", err)
 	}
 
 	shared.VerbosePrintln(fmt.Sprintf("Successfully downloaded S3 file (%d bytes)", downloadedByteCount))

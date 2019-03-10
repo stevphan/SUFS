@@ -1,8 +1,8 @@
 package shared
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 func StoreSingleBlock(storeBlockReq StoreBlockRequest) bool {
