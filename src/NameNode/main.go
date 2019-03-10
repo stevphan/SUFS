@@ -34,7 +34,6 @@ func main() {
 	go replicationCheck()
 	go dataNodeDead()
 
-	log.Println("NameNode Running")
 	filePath := make(map[string]func(http.ResponseWriter, *http.Request))
 	filePath[http.MethodGet] = getFile
 	filePath[http.MethodPut] = createFile
@@ -53,6 +52,7 @@ func main() {
 	http.HandleFunc("/getFile", getFile)
 	http.HandleFunc("/blockReport", blockReport)
 	http.HandleFunc("/heartBeat", heartBeat)*/
+	log.Println("NameNode Running")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
