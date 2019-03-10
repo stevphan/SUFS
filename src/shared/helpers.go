@@ -51,3 +51,12 @@ func ObjectFromResponse(res *http.Response, object interface{}) error {
 	err := json.Unmarshal(data, object)
 	return err
 }
+
+func ServeCall(pattern string, handlers map[string]func(http.ResponseWriter, *http.Request)) {
+	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		handler, present := handlers[r.Method]
+		if present {
+			handler(w, r)
+		}
+	})
+}
