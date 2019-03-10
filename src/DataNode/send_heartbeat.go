@@ -26,9 +26,21 @@ func heartbeat() {
 	heartbeatReq.MyIp = selfAddress
 	buffer, err := shared.ConvertObjectToJsonBuffer(heartbeatReq)
 	res, err := http.Post(nameNodeUrl, "application/json", buffer)
+	if err != nil {
+		log.Println("Error sending heartbeat:", err)
+		return
+	}
 	// should I even keep response if heartbeat is one-way anyway?
 	heartbeatResp := shared.HeartbeatResponse{}
 	err = shared.ObjectFromResponse(res, &heartbeatResp)
-	shared.CheckErrorAndFatal("Error sending heartbeat", err)
+	if err != nil {
+		log.Println("Error parsing heartbeat response:", err)
+		return
+	}
+	if heartbeatResp.Err != "" {
+		log.Println("Error in heartbeat response:", heartbeatResp.Err)
+		return
+	}
+
 	return
 }

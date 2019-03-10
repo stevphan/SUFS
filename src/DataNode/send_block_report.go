@@ -33,7 +33,7 @@ func create_report() {
 
 	nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// grab blocks in directory
 	for _, b := range blocks {
@@ -42,11 +42,20 @@ func create_report() {
 	// send as POST to NN, since block report we don't needs a response
 	buffer, err := shared.ConvertObjectToJsonBuffer(myBlockReport)
 	res, err := http.Post(nameNodeUrl,"application/json", buffer)
+	if err != nil {
+		log.Println("Error sending block report", err)
+		return
+	}
 
 	// handle response
 	reportResponse  := shared.BlockReportResponse{}
 	err = shared.ObjectFromResponse(res, &reportResponse)
-	shared.CheckErrorAndFatal("Error sending heartbeat", err)
+	if err != nil {
+		log.Println("Error parsing block report", err)
+	}
+	if reportResponse.Err != "" {
+		log.Println(reportResponse.Err)
+	}
 
 	return
 }

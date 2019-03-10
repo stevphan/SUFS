@@ -44,7 +44,7 @@ func main() {
 	go send_heartbeat()
 	go send_block_report()
 
-	err := http.ListenAndServe(selfAddress, nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Panic(err)
 	}

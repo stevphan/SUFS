@@ -50,7 +50,7 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&blockReq)
 	if err != nil {
-		log.Fatal("Decoding error: ", err)
+		log.Println("Decoding error: ", err)
 	}
 
 	log.Print("Received request for block ", blockReq.BlockId, "\n")
