@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func getFile(args []string, displayDataNodeInfoOnly bool) {
-	nameNodeAddr, filename, saveLocation := parseGetFileArgs(args, displayDataNodeInfoOnly)
+func getFile(command string, args []string, displayDataNodeInfoOnly bool) {
+	nameNodeAddr, filename, saveLocation := parseGetFileArgs(command, args, displayDataNodeInfoOnly)
 
 	getFileResponse := getFileInNameNode(nameNodeAddr, filename)
 
@@ -28,18 +28,18 @@ func getFile(args []string, displayDataNodeInfoOnly bool) {
 	}
 }
 
-func parseGetFileArgs(args []string, displayDataNodeInfoOnly bool) (nameNodeAddr, filename, saveLocation string) {
+func parseGetFileArgs(command string, args []string, displayDataNodeInfoOnly bool) (nameNodeAddr, filename, saveLocation string) {
 	fmtArgs := stringsMap(args, func(s string) string { return "'" + s + "'" })
 	verboseMessage := fmt.Sprintf("get file with args: %v", fmtArgs)
 	shared.VerbosePrintln(verboseMessage)
 
 	if displayDataNodeInfoOnly {
-		if len(args) != 3 {
-			log.Fatalf("Input Error: Must use list-data-nodes in the following format '%s list-data-nodes <name-node-address> <filename>'\n", args[0])
+		if len(args) != 2 {
+			log.Fatalf("Input Error: Must use list-data-nodes in the following format '%s list-data-nodes <name-node-address> <filename>'\n", command)
 		}
 	} else {
-		if len(args) != 4 {
-			log.Fatalf("Input Error: Must use get-file in the following format '%s get-file <name-node-address> <filename> <save-location>'\n", args[0])
+		if len(args) != 3 {
+			log.Fatalf("Input Error: Must use get-file in the following format '%s get-file <name-node-address> <filename> <save-location>'\n", command)
 		}
 
 		saveLocation = args[3]
@@ -83,8 +83,10 @@ func createSaveLocation(saveLocation string) *os.File {
 func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.File) {
 	defer file.Close()
 
+	shared.VerbosePrintln(fmt.Sprintf("Attempting to get '%d' block(s)", len(getFileResponse.BlockInfos)))
+
 	for i, info := range getFileResponse.BlockInfos {
-		block, success := getSingleBlock(info)
+		block, success := getSingleBlock(info, len(getFileResponse.BlockInfos))
 		if !success {
 			os.Remove(file.Name())
 			log.Fatalf("Unable to get block %d/%d\n", i, len(getFileResponse.BlockInfos))
@@ -100,8 +102,8 @@ func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.F
 	}
 }
 
-func getSingleBlock(info shared.BlockInfo) (string, bool) {
-	shared.VerbosePrintln("Attempting to get block from data node")
+func getSingleBlock(info shared.BlockInfo, blockNumber int) (string, bool) {
+	shared.VerbosePrintln(fmt.Sprintf("%d. Attempting to get block '%s' from data node", blockNumber, info.BlockId))
 
 	for _, dn := range info.DnList {
 		getBlockRequest := shared.GetBlockRequest{

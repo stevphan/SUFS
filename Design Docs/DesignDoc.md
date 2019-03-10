@@ -129,7 +129,12 @@ Happy Path, Error is nil.
 
 #### Store Block Request
 
-PUT /block
+PUT /block checks its own IP is contained in the DataNodeList. If it is, then it stores the
+block into the DataNode's directory and removes itself from the DataNodeList. It then forwards
+the JSON payload to the first DataNode contained in the DataNodeList. This
+process repeats until the DataNodeList is empty, signifying that forwarding is complete and the
+blocks have been all stored and forwarded
+
 
 ```json
 {
@@ -151,7 +156,10 @@ PUT /block
 
 #### Get Block Request
 
-GET /block
+GET /block checks if the BlockId is contained within the DataNode's block directory. 
+If it exists, it base64 encodes the block data into a JSON payload and returns it with
+an empty 'Error' string. If an error occurs, then the it returns a JSON payload of just
+an error without any Block data.
 
 ```json
 {
@@ -167,6 +175,30 @@ GET /block
     "Error": string // description of the error, empty means no error
 }
 ```
+
+#### Replicate Block Request
+
+POST /replicate checks if it has the given BlockId, and if it doesn't then returns an error that
+it does not contain the BlockId. If it does, then it essentially calls a store block request
+on that BlockId onto the given DataNodeList, letting it forward itself to the DataNodes in the
+DnList.
+
+
+```json
+{
+	BlockId string   `json:"BlockId"`
+	DnList  []string `json:"DataNodeList"`
+}
+```
+
+#### Replicate Block Response
+
+```json
+{
+	Err string `json:"Error"` // empty means no error
+}
+```
+
 
 ### CLI
 
