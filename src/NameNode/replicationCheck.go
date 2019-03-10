@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Shared"
+	"shared"
 	"log"
 	"net/http"
 	"time"

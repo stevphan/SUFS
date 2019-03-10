@@ -6,7 +6,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"Shared"
+	"shared"
 )
 
 const (

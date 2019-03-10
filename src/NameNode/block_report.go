@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Shared"
+	"shared"
 	"encoding/json"
 	"log"
 	"net/http"
