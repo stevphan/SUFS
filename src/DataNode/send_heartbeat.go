@@ -21,11 +21,23 @@ func send_heartbeat() { // sends heartbeat every heartTimer amount of seconds, s
 }
 
 func heartbeat() {
-	nameNodeUrl := "http://" + nameNodeAddress + "/heartBeat"
+	nameNodeUrl := "http://" + nameNodeAddress + shared.PathHeartbeat
 	heartbeatReq := shared.HeartbeatRequest{}
 	heartbeatReq.MyIp = selfAddress
+
 	buffer, err := shared.ConvertObjectToJsonBuffer(heartbeatReq)
-	res, err := http.Post(nameNodeUrl, "application/json", buffer)
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPut, nameNodeUrl, buffer)
+
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println("ERROR: ", err)
+		return
+	}
+
+
 	if err != nil {
 		log.Println("Error sending heartbeat:", err)
 		return

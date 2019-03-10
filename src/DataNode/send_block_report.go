@@ -31,19 +31,29 @@ func create_report() {
 
 	blocks, err := ioutil.ReadDir(directory)
 
-	nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
+	nameNodeUrl := "http://" + nameNodeAddress + shared.PathBlockReport
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	// grab blocks in directory
 	for _, b := range blocks {
 		myBlockReport.BlockIds = append(myBlockReport.BlockIds, b.Name())
 	}
-	// send as POST to NN, since block report we don't needs a response
+	// send to NN, since block report we don't needs a response
 	buffer, err := shared.ConvertObjectToJsonBuffer(myBlockReport)
-	res, err := http.Post(nameNodeUrl,"application/json", buffer)
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPut, nameNodeUrl, buffer)
 	if err != nil {
-		log.Println("Error sending block report", err)
+		log.Println("ERROR: ", err)
+		return
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println("ERROR: ", err)
 		return
 	}
 
