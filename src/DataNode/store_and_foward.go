@@ -99,7 +99,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&storeReq)
 	if err != nil {
-		log.Fatal("Decoding error: ", err)
+		log.Println("Decoding error: ", err)
 	}
 
 	//fmt.Printf("Received: %s\n", storeReq)
@@ -151,7 +151,7 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 	decoded, err := base64.StdEncoding.DecodeString(storeReq.Block)
 
 	if err != nil {
-		log.Fatal("Encoding error: ", err)
+		log.Println("Encoding error: ", err)
 	}
 
 //	fmt.Println("Decoded block data: " + string(decoded))

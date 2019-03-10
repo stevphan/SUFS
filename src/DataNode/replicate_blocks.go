@@ -18,7 +18,7 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&recoverReq)
 	if err != nil {
-		log.Fatal("Decoding error: ", err)
+		log.Println("Decoding error: ", err)
 	}
 
 	//nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"

@@ -6,6 +6,7 @@ call heartbeat from NN
  */
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -21,22 +22,13 @@ func main() {
 	/*
 	ensure directory exists
 	 */
-	addr := ""
-	if len(os.Args) >= 1 {
-		addr = os.Args[1]
-	}
+	ipAddressRes, _ :=  http.Get("http://169.254.169.254/latest/meta-data/public-ipv4")
+	body, _ := ioutil.ReadAll(ipAddressRes.Body)
+	selfAddress = string(body)
+	log.Print("MyIp: ", selfAddress, "\n")
 
-	if addr == "" {
-		//ipAddress, _ :=  http.Get("http://169.254.169.254/latest/meta-data/public-ipv4)")
-		//body, _ := ioutil.ReadAll(ipAddress.Body)
-	}
-
-	// accessible var so other store_and_forward can check if self in DnList
-	selfAddress = addr
-
-	nameNodeAddress = os.Args[2]
-
-	directory = os.Args[3]
+	nameNodeAddress = os.Args[1]
+	directory = os.Args[2]
 	// os.Args[2] == nameNodeAddress
 
 	/*
@@ -52,7 +44,7 @@ func main() {
 	go send_heartbeat()
 	go send_block_report()
 
-	err := http.ListenAndServe(addr, nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Panic(err)
 	}
