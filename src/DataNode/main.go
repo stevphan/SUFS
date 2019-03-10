@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"shared"
 )
 
 var (
@@ -37,9 +38,19 @@ func main() {
 
 	 */
 
-	http.HandleFunc("/getBlock", get_block)
-	http.HandleFunc("/storeBlock", store_and_foward)
-	http.HandleFunc("/replicateBlocks", replicate_blocks)
+	blockPath := make(map[string]func(http.ResponseWriter, *http.Request))
+	blockPath[http.MethodGet] = get_block
+	blockPath[http.MethodPut] = store_and_foward
+	shared.ServeCall(shared.PathBlock, blockPath)
+
+	//http.HandleFunc("/getBlock", get_block)
+	//http.HandleFunc("/storeBlock", store_and_foward)
+
+	repPath := make(map[string]func(http.ResponseWriter, *http.Request))
+	blockPath[http.MethodPost] = replicate_blocks
+	shared.ServeCall(shared.PathReplication, repPath)
+
+	//http.HandleFunc("/replicateBlocks", replicate_blocks)
 
 	go send_heartbeat()
 	go send_block_report()
