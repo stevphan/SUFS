@@ -45,13 +45,13 @@ func main() {
 	switch userAction {
 	case actionCreateFile:
 		shared.VerbosePrintln("User wants to create a file")
-		createFile(normalArgs[1:])
+		createFile(normalArgs)
 	case actionGetFile:
 		shared.VerbosePrintln("User wants to get a file")
-		getFile(normalArgs[1:], false)
+		getFile(normalArgs, false)
 	case actionListDataNodes:
 		shared.VerbosePrintln("User wants to get Data Node info of a file")
-		getFile(normalArgs[1:], true)
+		getFile(normalArgs, true)
 	default:
 		log.Fatalf("Incorrect command. Must supply an action '%s', '%s' or '%s'\n", actionCreateFile, actionGetFile, actionListDataNodes)
 	}
@@ -78,10 +78,10 @@ func parseEnvironmentVariables() {
 	awsSecretAccessToken = os.Getenv("AWS_SECRET_ACCESS_TOKEN")
 
 	if len(awsAccessId) == 0 {
-		log.Fatal("Environment variable AWS_ACCESS_ID not set")
+		log.Fatalln("Environment variable AWS_ACCESS_ID not set")
 	}
 
 	if len(awsSecretAccessToken) == 0 {
-		log.Fatal("Environment variable AWS_SECRET_ACCESS_TOKEN not set")
+		log.Fatalln("Environment variable AWS_SECRET_ACCESS_TOKEN not set")
 	}
 }

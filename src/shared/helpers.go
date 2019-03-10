@@ -3,10 +3,10 @@ package shared
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"fmt"
+	"net/http"
 )
 
 var Verbose = false
@@ -19,7 +19,7 @@ func VerbosePrintln(s string) {
 
 func CheckErrorAndFatal(description string, err error) {
 	if err != nil {
-		log.Fatal(description+":", err)
+		log.Fatalln(description+":", err)
 	}
 }
 

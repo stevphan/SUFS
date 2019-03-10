@@ -10,13 +10,13 @@ import (
 	"strings"
 )
 
-func getFile(getFileArgs []string, displayDataNodeInfoOnly bool) {
-	nameNodeAddr, filename, saveLocation := parseGetFileArgs(getFileArgs, displayDataNodeInfoOnly)
+func getFile(args []string, displayDataNodeInfoOnly bool) {
+	nameNodeAddr, filename, saveLocation := parseGetFileArgs(args, displayDataNodeInfoOnly)
 
 	getFileResponse := getFileInNameNode(nameNodeAddr, filename)
 
 	if getFileResponse.Err != "" {
-		log.Fatal(getFileResponse.Err)
+		log.Fatalln(getFileResponse.Err)
 	}
 
 	if displayDataNodeInfoOnly {
@@ -34,12 +34,12 @@ func parseGetFileArgs(args []string, displayDataNodeInfoOnly bool) (nameNodeAddr
 	shared.VerbosePrintln(verboseMessage)
 
 	if displayDataNodeInfoOnly {
-		if len(args) != 2 {
-			log.Fatal("Input Error: Must use list-data-nodes in the following format 'CLI list-data-nodes <name-node-address> <filename>")
+		if len(args) != 3 {
+			log.Fatalf("Input Error: Must use list-data-nodes in the following format '%s list-data-nodes <name-node-address> <filename>'\n", args[0])
 		}
 	} else {
-		if len(args) != 3 {
-			log.Fatal("Input Error: Must use get-file in the following format 'CLI get-file <name-node-address> <filename> <save-location>")
+		if len(args) != 4 {
+			log.Fatalf("Input Error: Must use get-file in the following format '%s get-file <name-node-address> <filename> <save-location>'\n", args[0])
 		}
 
 		saveLocation = args[2]
@@ -74,7 +74,7 @@ func displayDataNodeInfo(getFileResponse shared.GetFileNameNodeResponse) {
 func createSaveLocation(saveLocation string) *os.File {
 	file, err := os.Create(saveLocation)
 	if err != nil {
-		log.Fatal("Unable to create local file:", err)
+		log.Fatalln("Unable to create local file:", err)
 	}
 
 	return file
@@ -87,13 +87,13 @@ func getAndSaveBlocks(getFileResponse shared.GetFileNameNodeResponse, file *os.F
 		block, success := getSingleBlock(info)
 		if !success {
 			os.Remove(file.Name())
-			log.Fatalf("Unable to get block %d/%d", i, len(getFileResponse.BlockInfos))
+			log.Fatalf("Unable to get block %d/%d\n", i, len(getFileResponse.BlockInfos))
 		}
 
 		decoded, err := base64.StdEncoding.DecodeString(block)
 		if err != nil {
 			os.Remove(file.Name())
-			log.Fatalf("Unable to decode block %d/%d: %v", i, len(getFileResponse.BlockInfos), err)
+			log.Fatalf("Unable to decode block %d/%d: %v\n", i, len(getFileResponse.BlockInfos), err)
 		}
 
 		file.Write(decoded)

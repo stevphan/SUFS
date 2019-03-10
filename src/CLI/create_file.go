@@ -7,8 +7,8 @@ import (
 	"shared"
 )
 
-func createFile(createFileArgs []string) {
-	nameNodeAddr, filename, s3Url := parseCreateFileArgs(createFileArgs)
+func createFile(args []string) {
+	nameNodeAddr, filename, s3Url := parseCreateFileArgs(args)
 
 	fileData := downloadS3File(s3Url)
 
@@ -24,8 +24,8 @@ func parseCreateFileArgs(args []string) (nameNodeAddr, filename, s3Url string) {
 	verboseMessage := fmt.Sprintf("create file with args: %v", fmtArgs)
 	shared.VerbosePrintln(verboseMessage)
 
-	if len(args) != 3 {
-		log.Fatal("Input Error: Must use create-file in the following format 'CLI create-file <name-node-address> <filename> <s3-url>")
+	if len(args) != 4 {
+		log.Fatalf("Input Error: Must use create-file in the following format '%s create-file <name-node-address> <filename> <s3-url>'\n", args[0])
 	}
 
 	nameNodeAddr = args[0]
@@ -45,7 +45,7 @@ func createFileInNameNode(nameNodeAddr, filename, size string) (createFileRespon
 	sendRequestToNameNode(nameNodeAddr, "createFile", createFileRequest, &createFileResponse)
 
 	if createFileResponse.Err != "" {
-		log.Fatal(createFileResponse.Err)
+		log.Fatalln(createFileResponse.Err)
 	}
 
 	shared.VerbosePrintln("Successfully created a file on the name node")
@@ -72,7 +72,7 @@ func makeBlocks(fileData []byte) []string {
 
 func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks []string) {
 	if len(createFileResponse.BlockInfos) != len(blocks) {
-		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'", len(createFileResponse.BlockInfos), len(blocks))
+		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'\n", len(createFileResponse.BlockInfos), len(blocks))
 	}
 
 	shared.VerbosePrintln("Attempting to store all blocks")
@@ -84,7 +84,7 @@ func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks
 		shared.VerbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
 
 		if !successful {
-			log.Fatalf("Unable to store block '%s' on any data node", blockInfo.BlockId)
+			log.Fatalf("Unable to store block '%s' on any data node\n", blockInfo.BlockId)
 		}
 	}
 

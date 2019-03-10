@@ -66,8 +66,8 @@ type HeartbeatResponse struct {
 //Replication Check
 
 type ReplicationRequest struct {
-	BlockId string `json:"BlockId"`
-	DnList	[]string `json:"DataNodeList"`
+	BlockId string   `json:"BlockId"`
+	DnList  []string `json:"DataNodeList"`
 }
 
 type ReplicationResponse struct {
