@@ -44,14 +44,15 @@ User->+CLI: GetFile(name, saveLocation)
 CLI->+Name Node: GetFile(name)
 Name Node->-CLI: DataNode List / BlockID
 
+CLI->CLI: CreateLocalFile(saveLocation)
+
 loop per BlockID
 CLI->CLI: DetermineDataNode(DataNodeList)
 CLI->+DeterminedDataNode: GetBlock(BlockID)
 DeterminedDataNode->CLI: Block
+CLI->CLI: AddBlockToFile(saveLocation)
 end
 
-CLI->CLI: ConcatenateBlocks(blocks)
-CLI->CLI: SaveFile(data, saveLocation)
 CLI->-User: Result
 ```
 
