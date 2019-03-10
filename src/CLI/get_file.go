@@ -42,11 +42,11 @@ func parseGetFileArgs(args []string, displayDataNodeInfoOnly bool) (nameNodeAddr
 			log.Fatalf("Input Error: Must use get-file in the following format '%s get-file <name-node-address> <filename> <save-location>'\n", args[0])
 		}
 
-		saveLocation = args[2]
+		saveLocation = args[3]
 	}
 
-	nameNodeAddr = args[0]
-	filename = args[1]
+	nameNodeAddr = args[1]
+	filename = args[2]
 
 	return
 }

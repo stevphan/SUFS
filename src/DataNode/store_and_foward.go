@@ -95,6 +95,7 @@ func writeFile(path string, data string) {
 }
 
 func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores Block data into current DataNode, and forwards it to the next DataNode on the list
+	defer req.Body.Close()
 	storeReq := shared.StoreBlockRequest{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&storeReq)
