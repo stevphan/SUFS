@@ -21,6 +21,11 @@
 * go build
 * run `./datanode <name_node_addr>:8080 <directory_of_block_storage>`
 
+## Libraries Used
+
+* AWS SDK
+  * `go get github.com/aws/aws-sdk-go`
+
 ## Notes
 
 [Google Drive Documents](https://drive.google.com/drive/folders/1fM6cTPVd33H-8DGVdshsqFIiVyhb7iQa)
