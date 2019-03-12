@@ -20,13 +20,11 @@ func dataNodeDead() {
 }
 
 func dnCheck() {
-	//for i := 0; i < numDn; i++ {
 	for i := 0; i < len(dnList); i++ {
 		if time.Now().Sub(dnList[i].dnTime) > dnDeadAfter {
 			removeFromDnList(i)
 		}
 	}
-	//log.Println(dnList)
 	log.Println("dnCheck complete")
 }
 
@@ -37,7 +35,6 @@ func removeFromDnList(dnIndex int) {
 	dnList[dnIndex] = dnList[len(dnList)-1]
 	dnList[len(dnList)-1] = dataNodeList{}
 	dnList = dnList[:len(dnList)-1]
-	//numDn--
 }
 
 //Removes given IP from places a block is stored
@@ -45,7 +42,9 @@ func deleteFromFiles(ip string) {
 
 	var foundIp bool
 	var j int
+	lock.RLock() //lock before for loop
 	for key, value := range files.MetaData {
+		lock.RUnlock() //unlock for reads
 		for i := 0; i < len(value); i++ {
 			j = 0
 			foundIp = false
@@ -59,24 +58,10 @@ func deleteFromFiles(ip string) {
 				j++
 			}
 		}
-		files.MetaData[key] = value
+		//files.MetaData[key] = value
+		writeMap(key, value)
+		lock.RLock() //lock for for loop
 	}
-	//for i := 0; i < files.NumFiles; i++ {
-	/*for i := 0; i < len(files.MetaData); i++ {
-		//for j := 0; j < files.MetaData[i].NumBlocks; j++ {
-		for j := 0; j < len(files.MetaData[i].BlockLists); j++ {
-			k = 0
-			foundIp = false
-			for k < len(files.MetaData[i].BlockLists[j].DnList) && !foundIp {
-				if files.MetaData[i].BlockLists[j].DnList[k] == ip { //remove from list
-					files.MetaData[i].BlockLists[j].DnList[k] = files.MetaData[i].BlockLists[j].DnList[len(files.MetaData[i].BlockLists[j].DnList)-1]
-					files.MetaData[i].BlockLists[j].DnList[len(files.MetaData[i].BlockLists[j].DnList)-1] = ""
-					files.MetaData[i].BlockLists[j].DnList = files.MetaData[i].BlockLists[j].DnList[:len(files.MetaData[i].BlockLists[j].DnList)-1]
-					foundIp = true
-				}
-				k++
-			}
-		}
-	}*/
+	lock.RUnlock()
 	writeFilesToDisk()
 }

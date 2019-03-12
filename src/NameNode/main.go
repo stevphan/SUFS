@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"shared"
+	"sync"
 )
 
 const (
@@ -16,6 +17,7 @@ var (
 	//dnList = []string{}
 	//numDn = 0
 	files file
+	lock = sync.RWMutex{}
 )
 /*
 block report send port as well
@@ -26,10 +28,10 @@ func main() {
 	readFilesFromDisk()
 
 	//for testing
-	/*addToDnList("localhost:8081")
+	addToDnList("localhost:8081")
 	addToDnList("localhost:8082")
 	addToDnList("fake.ip.1")
-	addToDnList("fake.ip.2")*/
+	addToDnList("fake.ip.2")
 
 	go replicationCheck()
 	go dataNodeDead()

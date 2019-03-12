@@ -17,9 +17,10 @@ func convertObjectToJson(object interface{}) ([]byte, error) {
 }
 
 func writeFilesToDisk() {
+	defer lock.Unlock()
+	lock.Lock()
 	js, _ := json.MarshalIndent(files, "", " ")
 	err := ioutil.WriteFile(saveData, js, 0644)
-	//log.Println(files)
 	errorPrint(err)
 }
 
@@ -46,31 +47,28 @@ func errorPrint(err error) {
 	}
 }
 
-//Returns true if file name found plus the index it is in the files.metadata[]
-//Returns false if file name not found plus index of -1
-/*func findFile(fileName string) (found bool, fileIndex int) {
-	//if files.NumFiles > 0 {
-	if len(files.MetaData) > 0 {
-		//for i := 0; i < files.NumFiles; i++ {
-		for i := 0; i < len(files.MetaData); i++ {
-			if files.MetaData[i].FileName == fileName {
-				return true, i
-			}
-		}
-	}
-	return false, -1
-}*/
-
 func addToDnList(ip string) {
 	tempDn := dataNodeList{}
 	tempDn.dnIP = ip
 	tempDn.dnTime = time.Now()
 	dnList = append(dnList, tempDn)
 	log.Print("Added ", ip, " to dnList\n")
-	//numDn++
 }
 
 func getNewBlockId() int64 {
 	files.LastId++
 	return files.LastId
+}
+
+func readMap(key string) ([]blocks, bool) {
+	lock.RLock()
+	block, ok := files.MetaData[key]
+	lock.RUnlock()
+	return block, ok
+}
+
+func writeMap(key string, inputValue []blocks) {
+	lock.Lock()
+	files.MetaData[key] = inputValue
+	lock.Unlock()
 }

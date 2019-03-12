@@ -27,7 +27,8 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	errorPrint(err)
 
 	//Checks if the file exist
-	_, found := files.MetaData[myReq.FileName]
+	//_, found := files.MetaData[myReq.FileName]
+	_, found := readMap(myReq.FileName)
 	if found {
 		myRes := shared.CreateFileNameNodeResponse{}
 		myRes.Err = "File with name " + myReq.FileName + " already exist"
@@ -59,27 +60,22 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		_, err = write.Write(js)
 		errorPrint(err)
 		return
-	//} else if numDn < repFact { //don't have enough DN for replication factor
 	} else if len(dnList) < repFact { //don't have enough DN for replication factor
-		//replicationFactor = numDn
 		replicationFactor = len(dnList)
 	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
 	}
 
 	//This chooses DN for each block
-	//j := 0 //index of the DataNode list
 	myRes := shared.CreateFileNameNodeResponse{}
 	myRes.BlockInfos = make([]shared.BlockInfo, blocksRequired)
 	for i := 0; i < blocksRequired; i++ {
 		blockList := shared.BlockInfo{}
-		//blockList.BlockId = myReq.FileName + "_" + strconv.Itoa(i)
 		blockList.BlockId = strconv.FormatInt(getNewBlockId(), 10)
 		blockList.DnList = make([]string, replicationFactor)
 		for k := 0; k < replicationFactor; k++ {
 			blockList.DnList[k] = dnList[currentDn].dnIP
 			currentDn++
-			//if currentDn == numDn {
 			if currentDn == len(dnList) {
 				currentDn = 0
 			}
@@ -95,8 +91,8 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 		blocksToStore[i] = blockList
 	}
 
-	files.MetaData[myReq.FileName] = blocksToStore
-	//log.Println(files)
+	//files.MetaData[myReq.FileName] = blocksToStore
+	writeMap(myReq.FileName, blocksToStore)
 	writeFilesToDisk()
 	
 	//Returns myRes which is a shared.CreateFileNameNodeResponse

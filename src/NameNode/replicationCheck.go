@@ -25,7 +25,9 @@ func replicationCheck() {
 
 func repCheck() {
 	updateReplicationFactor()
+	lock.RLock() //lock before for loop
 	for key, value := range files.MetaData {
+		lock.RUnlock() //unlock for reads in checkFailed
 		for i := 0; i < len(value); i++ {
 			if len(value[i].DnList) == 0 {
 				log.Print("Dead Block: ", value[i].Id, "\n")
@@ -33,29 +35,16 @@ func repCheck() {
 				checkFailed(key, i)
 			}
 		}
+		lock.RLock() //lock for for loop
 	}
-
-	//for i := 0; i < files.NumFiles; i++ {
-	/*for i := 0; i < len(files.MetaData); i++ {
-		//for j := 0; j < files.MetaData[i].NumBlocks; j++ {
-		for j := 0; j < len(files.MetaData[i].BlockLists); j++ {
-			if len(files.MetaData[i].BlockLists[j].DnList) == 0 {
-				log.Print("Dead Block: ", files.MetaData[i].FileName, "_", j, "\n")
-			} else if len(files.MetaData[i].BlockLists[j].DnList) < replicationFactor {
-				checkFailed(files.MetaData[i].FileName, j, i)
-			}
-		}
-	}*/
+	lock.RUnlock()
 	log.Println("repCheck complete")
 }
 
 func updateReplicationFactor() {
-	//if numDn == 0 { //There are no DN
 	if len(dnList) == 0 { //There are no DN
 		replicationFactor = 0
-	//} else if numDn < repFact { //don't have enough DN for replication factor
 	} else if len(dnList) < repFact { //don't have enough DN for replication factor
-		//replicationFactor = numDn
 		replicationFactor = len(dnList)
 	} else { //Have enough DN for the replication factor
 		replicationFactor = repFact
@@ -63,7 +52,8 @@ func updateReplicationFactor() {
 }
 
 func checkFailed(fileName string, blockIndex int) {
-	tempBlocks := files.MetaData[fileName]
+	//tempBlocks := files.MetaData[fileName]
+	tempBlocks, _ := readMap(fileName)
 	log.Print("Replication check failed for ", fileName, ": blockId=", tempBlocks[blockIndex].Id, "\n")
 	myReq := shared.ReplicationRequest{}
 	myReq.BlockId = tempBlocks[blockIndex].Id

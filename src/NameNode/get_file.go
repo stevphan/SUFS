@@ -15,7 +15,8 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 	errorPrint(err)
 
 	//Finds if the file exist
-	_, found := files.MetaData[myReq.FileName]
+	//_, found := files.MetaData[myReq.FileName]
+	_, found := readMap(myReq.FileName)
 	if !found {
 		myRes := shared.GetFileNameNodeResponse{}
 		myRes.Err = "File " + myReq.FileName + " not found"
@@ -27,12 +28,12 @@ func getFile(write http.ResponseWriter, req *http.Request) { //return dataNode l
 		return
 	}
 
-	log.Print("Getting file ", myReq.FileName, "\n")
 	//Gets the blocks and DnList for the file
+	log.Print("Getting file ", myReq.FileName, "\n")
 	myRes := shared.GetFileNameNodeResponse{}
-	myBlocks := files.MetaData[myReq.FileName]
+	//myBlocks := files.MetaData[myReq.FileName]
+	myBlocks, _ := readMap(myReq.FileName)
 	myRes.BlockInfos = make([]shared.BlockInfo, len(myBlocks))
-	//for i := 0; i < files.MetaData[fileIndex].NumBlocks; i++ {
 	for i := 0; i < len(myBlocks); i++ {
 		blockList := shared.BlockInfo{}
 		blockList.BlockId = myBlocks[i].Id
