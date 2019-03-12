@@ -48,7 +48,7 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 		var j int //index of values
 		found := false
 		lock.RLock() //lock before for loop
-		for key, value := range files.MetaData { //TODO end this when found, better locking
+		for key, value := range files.MetaData {
 			lock.RUnlock() //unlock for reads
 			j = 0
 			for j < len(value) && !found {
@@ -60,6 +60,9 @@ func blockReport(write http.ResponseWriter, req *http.Request) { //returns nothi
 				j++
 			}
 			lock.RLock() //lock for for loop
+			if found {
+				break
+			}
 		}
 		lock.RUnlock()
 

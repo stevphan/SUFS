@@ -43,7 +43,7 @@ func readFilesFromDisk() {
 
 func errorPrint(err error) {
 	if err != nil {
-		log.Println(err.Error())
+		log.Println(err)
 	}
 }
 
