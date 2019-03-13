@@ -276,6 +276,8 @@ The Data Node will store the block if it's address is in the Data Node list in t
 
 * Block Size: 64MB
 * Replication Factor: 3
+* Replication Checks are done every min
+* Checks if Data Node is dead every min
 
 ## Project State
 
@@ -298,5 +300,4 @@ The Data Node will store the block if it's address is in the Data Node list in t
 
 ### Needs to be started
 
-* Heartbeat from Data Nodes to Name Node
 * AWS Setup
