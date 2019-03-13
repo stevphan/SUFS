@@ -267,11 +267,11 @@ It beautifies the Data Node list and outputs it.
 
 ## System Design
 
-![Create File Sequence Diagram](Create_File_Sequence_Diagram.png)
+![Create File Sequence Diagram](images/Create_File_Sequence_Diagram.png)
 
-![Get File Sequence Diagram](Get_File_Sequence_Diagram.png)
+![Get File Sequence Diagram](images/Get_File_Sequence_Diagram.png)
 
-![Data Node Bootstrap Sequence Diagram](Data_Node_Bootstrap_Sequence_Diagram.png)
+![Data Node Bootstrap Sequence Diagram](images/Data_Node_Bootstrap_Sequence_Diagram.png)
 
 ### Data Node
 
