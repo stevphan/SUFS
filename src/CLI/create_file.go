@@ -3,21 +3,23 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"shared"
 )
 
 func createFile(command string, args []string) {
 	nameNodeAddr, filename, s3Url := parseCreateFileArgs(command, args)
 
-	fileData := downloadS3File(s3Url)
+	file, size := downloadS3FileInFile(s3Url)
+	defer os.Remove(tempS3DownloadFileName)
 
-	fileSize := fmt.Sprintf("%d", len(fileData))
+	fileSize := fmt.Sprintf("%d", size)
 	createFileResponse := createFileInNameNode(nameNodeAddr, filename, fileSize)
 
-	blocks := makeBlocks(fileData)
-	storeAllBlocks(createFileResponse, blocks)
+	storeAllBlocks(createFileResponse, file, size)
 }
 
 func parseCreateFileArgs(command string, args []string) (nameNodeAddr, filename, s3Url string) {
@@ -54,40 +56,35 @@ func createFileInNameNode(nameNodeAddr, filename, size string) (createFileRespon
 	return
 }
 
-func makeBlocks(fileData []byte) []string {
-	blocks := []string{}
-	byteIndex := 0
-
-	for byteIndex < len(fileData) {
-		bytesLeftCount := len(fileData) - byteIndex
-		endIndex := byteIndex + min(blockSize, bytesLeftCount)
-
-		base64Encoded := base64.StdEncoding.EncodeToString(fileData[byteIndex:endIndex])
-		blocks = append(blocks, base64Encoded)
-
-		byteIndex += blockSize
+func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, file *os.File, size int64) {
+	blocksCount := int(size / blockSize)
+	lastBlockSize := size % blockSize
+	if lastBlockSize != 0 {
+		blocksCount += 1
 	}
 
-	return blocks
-}
-
-func storeAllBlocks(createFileResponse shared.CreateFileNameNodeResponse, blocks []string) {
-	if len(createFileResponse.BlockInfos) != len(blocks) {
-		log.Fatalf("Name node block list count '%d' does not match calculated blocks count '%d'\n", len(createFileResponse.BlockInfos), len(blocks))
+	if blocksCount != len(createFileResponse.BlockInfos) {
+		log.Fatalf("Calculated blocks count '%d' does not match block count in Name Node response '%d'\n", blocksCount, len(createFileResponse.BlockInfos))
 	}
 
-	shared.VerbosePrintln("Attempting to store all blocks")
+	buffer := make([]byte, blockSize)
+	for i := 0; i < blocksCount; i++ {
+		blockInfo := createFileResponse.BlockInfos[i]
+		bytesRead, err := file.Read(buffer)
 
-	for i, blockInfo := range createFileResponse.BlockInfos {
-		storeBlockReq := shared.MakeStoreBlockRequest(blocks[i], blockInfo)
-		successful := shared.StoreSingleBlock(storeBlockReq)
+		shared.VerbosePrintln(fmt.Sprintf("%d. Uploading block '%s'", i, blockInfo.BlockId))
 
-		shared.VerbosePrintln(fmt.Sprintf("Attemping to save block (%d/%d)", i, len(blocks)))
+		if err != nil {
+			if err != io.EOF {
+				shared.CheckErrorAndFatal("Error reading file from s3", err)
+			}
 
-		if !successful {
-			log.Fatalf("Unable to store block '%s' on any data node\n", blockInfo.BlockId)
+			break
 		}
-	}
 
-	shared.VerbosePrintln("Successfully stored all blocks to a data node")
+		base64EncodedBlock := base64.StdEncoding.EncodeToString(buffer[:bytesRead])
+		storeBlockRequest := shared.MakeStoreBlockRequest(base64EncodedBlock, blockInfo)
+
+		shared.StoreSingleBlock(storeBlockRequest)
+	}
 }

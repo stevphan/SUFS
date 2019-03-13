@@ -9,18 +9,18 @@ import (
 )
 
 const (
-	// system constants
-	blockSize       int = 64 * 1024 * 1024 // 64MB
-	nameNodeTimeout     = time.Duration(10 * time.Second)
+	// System Constants
+	blockSize       int64         = 64 * 1024 * 1024 // 64MB
+	nameNodeTimeout time.Duration = time.Duration(10 * time.Second)
 
-	// actions
+	// Actions
 	actionCreateFile    string = "create-file"
 	actionGetFile       string = "get-file"
 	actionListDataNodes string = "list-data-nodes"
 
 	// S3 constants
-	// tempS3DownloadFileName string = "temp_s3_download_file_name"
-	awsRegion string = "us-west-2"
+	tempS3DownloadFileName string = "temp_s3_downloaded_file"
+	awsRegion              string = "us-west-2"
 )
 
 var (

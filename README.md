@@ -26,6 +26,11 @@
 * AWS SDK
   * `go get github.com/aws/aws-sdk-go`
 
+## Demo
+
+* small file url: `s3://reviews-radebaug/project/phoenix.png`
+* big file url: `s3://reviews-radebaug/project/earth.png`
+
 ## Notes
 
 [Google Drive Documents](https://drive.google.com/drive/folders/1fM6cTPVd33H-8DGVdshsqFIiVyhb7iQa)

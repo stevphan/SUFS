@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"shared"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,36 +14,53 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-func downloadS3File(url string) []byte {
+func downloadS3FileInFile(url string) (*os.File, int64) {
 	bucket, item := parseS3Url(url)
 
-	shared.VerbosePrintln(fmt.Sprintf("Downloading item '%s' from bucket '%s'", item, bucket))
+	file, err := os.Create(tempS3DownloadFileName)
+	shared.CheckErrorAndFatal("Unable to create temporary file for S3 download", err)
 
+	downloadedByteCount := downloadS3FileUsingAwsSdk(bucket, item, file)
+
+	fileInfo, err := file.Stat()
+	shared.CheckErrorAndCleanAndFatal("", err, func() {
+		os.Remove(tempS3DownloadFileName)
+	})
+	if downloadedByteCount != fileInfo.Size() {
+		os.Remove(tempS3DownloadFileName)
+		log.Fatalln("Downloaded byte count does not match the files byte count")
+	}
+
+	size := fileInfo.Size()
+	shared.VerbosePrintln("Successfully downloaded S3 file")
+
+	return file, size
+}
+
+func downloadS3FileUsingAwsSdk(bucket, item string, file *os.File) int64 {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(awsRegion),
 		Credentials: credentials.NewStaticCredentials(awsAccessId, awsSecretAccessToken, ""),
 	})
-	if err != nil {
-		log.Fatalln("Unable to create session with AWS:", err)
-	}
+	shared.CheckErrorAndCleanAndFatal("Unable to create session with AWS", err, func() {
+		os.Remove(tempS3DownloadFileName)
+	})
 
 	shared.VerbosePrintln("AWS session created")
 
 	downloader := s3manager.NewDownloader(sess)
-	outputBuffer := &aws.WriteAtBuffer{}
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(item),
 	}
 
-	downloadedByteCount, err := downloader.Download(outputBuffer, input)
-	if err != nil {
-		log.Fatalln("Unable to download S3 bucket item:", err)
-	}
+	shared.VerbosePrintln(fmt.Sprintf("Downloading item '%s' from bucket '%s'", item, bucket))
+	downloadedByteCount, err := downloader.Download(file, input)
+	shared.CheckErrorAndCleanAndFatal("Unable to download file from s3", err, func() {
+		os.Remove(tempS3DownloadFileName)
+	})
 
-	shared.VerbosePrintln(fmt.Sprintf("Successfully downloaded S3 file (%d bytes)", downloadedByteCount))
-
-	return outputBuffer.Bytes()
+	return downloadedByteCount
 }
 
 func parseS3Url(urlString string) (string, string) {

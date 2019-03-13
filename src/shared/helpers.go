@@ -18,3 +18,10 @@ func CheckErrorAndFatal(description string, err error) {
 		log.Fatalln(description+":", err)
 	}
 }
+
+func CheckErrorAndCleanAndFatal(description string, err error, cleanUp func()) {
+	if err != nil {
+		cleanUp()
+		log.Fatalln(description+":", err)
+	}
+}
