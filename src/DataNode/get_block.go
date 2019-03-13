@@ -54,7 +54,6 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 	}
 
 	js, err := convertObjectToJson(returnData)
-	log.Print(err)
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
 	return
