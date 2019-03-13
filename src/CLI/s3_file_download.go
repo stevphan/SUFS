@@ -64,12 +64,10 @@ func downloadS3FileUsingAwsSdk(bucket, item string, file *os.File) int64 {
 }
 
 func parseS3Url(urlString string) (string, string) {
-	log.Println("url:", urlString)
 	components, err := url.Parse(urlString)
 	if err != nil {
 		shared.CheckErrorAndFatal("Unable to parse S3 URL", err)
 	}
 
-	log.Println("Components:", components)
 	return components.Host, components.Path[1:]
 }
