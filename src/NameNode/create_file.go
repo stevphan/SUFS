@@ -47,7 +47,6 @@ func createFile(write http.ResponseWriter, req *http.Request) { //needs to retur
 	temp = math.Ceil(temp)
 	blocksRequired = int(temp)
 
-	//TODO choose DN to send each block to (check size of, choose lowest) - not super important
 	//Checks amount of DN vs the replication factor
 	var replicationFactor int
 	//if numDn == 0 { //There are no DN
