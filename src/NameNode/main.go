@@ -28,10 +28,10 @@ func main() {
 	readFilesFromDisk()
 
 	//for testing
-	addToDnList("localhost:8081")
+	/*addToDnList("localhost:8081")
 	addToDnList("localhost:8082")
 	addToDnList("fake.ip.1")
-	addToDnList("fake.ip.2")
+	addToDnList("fake.ip.2")*/
 
 	go replicationCheck()
 	go dataNodeDead()
