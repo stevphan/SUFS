@@ -28,12 +28,6 @@ func isError(err error) bool {
 }
 
 func removeSelf(storeReq shared.StoreBlockRequest) {
-	/*for i, v := range storeReq.DnList {
-		if v == selfAddress {
-			storeReq.DnList = append(storeReq.DnList[:i], storeReq.DnList[i+1:]...)
-			break
-		}
-	}*/
 	dnIndex := -1
 	found := false
 	i := 0
@@ -103,10 +97,6 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 		log.Println("Decoding error: ", err)
 	}
 
-	//fmt.Printf("Received: %s\n", storeReq)
-	//fmt.Println("")
-
-
 	path := directory + "/" + storeReq.BlockId
 
 	// does blocks exists first and foremost? if not, create /blocks/
@@ -155,7 +145,6 @@ func store_and_foward(write http.ResponseWriter, req *http.Request)  { // stores
 		log.Println("Encoding error: ", err)
 	}
 
-//	fmt.Println("Decoded block data: " + string(decoded))
 	// create & write data
 	createFile(path)
 	writeFile(path, string(decoded))

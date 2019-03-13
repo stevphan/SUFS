@@ -11,23 +11,6 @@ import (
 	"shared"
 )
 
-/*
-BlockId
- */
-
-
- // blocks in directory
- // blocks unique so check filename
-
-type getRequest struct {
-	BlockId string `json:"BlockId"`
-}
-
-type getResponse struct {
-	Block string `json:"Block"`
-	Error string `json:"Error"`
-}
-
 func exists(path string) (bool) {
 	_, err := os.Stat(path)
 	if err == nil { return true }
