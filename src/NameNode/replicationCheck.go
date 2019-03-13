@@ -32,7 +32,7 @@ func repCheck() {
 			if len(value[i].DnList) == 0 {
 				log.Print("Dead Block: ", value[i].Id, "\n")
 			} else if len(value[i].DnList) < replicationFactor {
-				checkFailed(key, i)
+				go checkFailed(key, i)
 			}
 		}
 		lock.RLock() //lock for for loop

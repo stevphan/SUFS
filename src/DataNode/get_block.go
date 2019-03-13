@@ -11,23 +11,6 @@ import (
 	"shared"
 )
 
-/*
-BlockId
- */
-
-
- // blocks in directory
- // blocks unique so check filename
-
-type getRequest struct {
-	BlockId string `json:"BlockId"`
-}
-
-type getResponse struct {
-	Block string `json:"Block"`
-	Error string `json:"Error"`
-}
-
 func exists(path string) (bool) {
 	_, err := os.Stat(path)
 	if err == nil { return true }
@@ -66,21 +49,11 @@ func get_block(write http.ResponseWriter, req *http.Request) { // returns block 
 		content, _ := ioutil.ReadAll(reader)
 		// encode base64
 		returnData.Block = base64.StdEncoding.EncodeToString(content)
-		////for testing, print encoded values
-		//fmt.Println("ENCODED: " + returnData.Block)
-		//
-		//// check if decode works by testing decoded value
-		//decoded, err := base64.StdEncoding.DecodeString(returnData.Block)
-		//if (err != nil) {}
-		//
-		//// testing, print decoded values (expected: asdf)
-		//fmt.Println("decoded: " + string(decoded))
 	} else {
 		returnData.Err = "Block not found"
 	}
 
 	js, err := convertObjectToJson(returnData)
-	log.Print(err)
 	write.Header().Set("Content-Type", "application/json")
 	_, _ = write.Write(js)
 	return

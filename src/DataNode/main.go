@@ -30,27 +30,17 @@ func main() {
 
 	nameNodeAddress = os.Args[1]
 	directory = os.Args[2]
-	// os.Args[2] == nameNodeAddress
 
-	/*
-	spin up heartbeat and blockreport in separate threads
-	send heartbeatreq to NN with IP
-
-	 */
 
 	blockPath := make(map[string]func(http.ResponseWriter, *http.Request))
 	blockPath[http.MethodGet] = get_block
 	blockPath[http.MethodPut] = store_and_foward
 	shared.ServeCall(shared.PathBlock, blockPath)
 
-	//http.HandleFunc("/getBlock", get_block)
-	//http.HandleFunc("/storeBlock", store_and_foward)
 
 	repPath := make(map[string]func(http.ResponseWriter, *http.Request))
-	blockPath[http.MethodPost] = replicate_blocks
+	repPath[http.MethodPost] = replicate_blocks
 	shared.ServeCall(shared.PathReplication, repPath)
-
-	//http.HandleFunc("/replicateBlocks", replicate_blocks)
 
 	go send_heartbeat()
 	go send_block_report()
