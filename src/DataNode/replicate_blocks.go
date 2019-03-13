@@ -21,7 +21,6 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 		log.Println("Decoding error: ", err)
 	}
 
-	//nameNodeUrl := "http://" + nameNodeAddress + "/blockReport"
 
 	recoverResp := shared.ReplicationResponse{}
 
@@ -38,11 +37,6 @@ func replicate_blocks(write http.ResponseWriter, req *http.Request)  {
 		recoverResp.Err = "404_FILE_NOT_FOUND"
 	}
 
-	// return POST to NN
-	/*buffer, err := shared.ConvertObjectToJsonBuffer(recoverResp)
-	res, err := http.Post(nameNodeUrl,"application/json", buffer)
-	err = shared.ObjectFromResponse(res, &recoverResp)
-	shared.CheckErrorAndFatal("Error sending replication", err)*/
 	js, err := convertObjectToJson(recoverResp)
 	write.Header().Set("Content-Type", "application/json")
 	_, err = write.Write(js)
