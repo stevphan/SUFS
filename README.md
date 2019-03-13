@@ -1,5 +1,11 @@
 # Group Project Notes
 
+## Team Members
+
+* Brian Radebaugh
+* Grant Ludwig
+* Steven Phan
+
 ## Running CLI
 
 * export tokens for S3 Bucket Access
@@ -30,7 +36,3 @@
 
 * small file url: `s3://reviews-radebaug/project/phoenix.png`
 * big file url: `s3://reviews-radebaug/project/earth.png`
-
-## Notes
-
-[Google Drive Documents](https://drive.google.com/drive/folders/1fM6cTPVd33H-8DGVdshsqFIiVyhb7iQa)

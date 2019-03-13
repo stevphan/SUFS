@@ -209,10 +209,12 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
 
 #### Create File Command
 
-Using the AWS SDK, download the file from s3 to a temp file.
-Get the Data Node list from the Name Node.
-Pull each block individually, base64 encode, and send to Data Node.
-Do this for as many blocks as needed.
+Using the AWS SDK, the CLI downloads the file from S3 to a temporary file.
+It calls the Name Node to create a new file in the Name Node.
+It receives Data Node list from the Name Node's response.
+It pulls data from the temporary file in block size chunks individually, base64 encodes it, and sends it to the first Data Node in the list.
+If any upload fails then subsequant Data Nodes in the list for that block are used.
+If all Data Node uploads fail for a given block then the CLI exits with an error.
 
 ```bash
 /path/to/CLI create-file <name_node_address_and_port> <file_name> <s3_url>
@@ -230,7 +232,9 @@ Do this for as many blocks as needed.
 #### Get File Command
 
 Get the list of blocks and their respective Data Nodes from the Name Node.
-Per block, get from the Data Node and append to the file.
+Per block, the CLI gets from the first Data Node in the list and appends to the file.
+If any download fails then subsequant Data Nodes in the list for that block are used.
+If all Data Node downloads fail for a given block then the CLI exits with an error.
 
 ```bash
 /path/to/CLI get-file <name_node_address_and_port> <file_name> <save_location>
@@ -248,7 +252,7 @@ Per block, get from the Data Node and append to the file.
 #### List Data Nodes File Command
 
 Get the list of blocks and their respective Data Nodes from the Name Node.
-Output the Data Nodes each block is stored at.
+It beautifies the Data Node list and outputs it.
 
 ```bash
 /path/to/CLI list-data-nodes <name_node_address_and_port> <file_name>
@@ -287,20 +291,10 @@ The Data Node will store the block if it's address is in the Data Node list in t
 
 * Block Size: 64MB
 * Replication Factor: 3
-* Replication Checks are done every min
-* Checks if Data Node is dead every min
-
-## Project State
-
-### Completed
-
-* System design
-* Tools and technologies decided
-* Basic implementation of creating, getting, and listing data nodes of files
-  * CLI
-  * Name Node
-  * Data Node
-
-### Needs to be started
-
-* AWS Setup
+* Name Node
+  * Replication Checks are done every minute
+  * Data Nodes checks are performed every 1 minute
+    * During Data Node checks any Data Node that has not had a successful heartbeat in the previous 2 minutes are considered failed
+* Data Node
+  * Block Reports are sent every 30 seconds
+  * Heartbeats are sent every 10 seconds
