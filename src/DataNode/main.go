@@ -39,7 +39,7 @@ func main() {
 
 
 	repPath := make(map[string]func(http.ResponseWriter, *http.Request))
-	blockPath[http.MethodPost] = replicate_blocks
+	repPath[http.MethodPost] = replicate_blocks
 	shared.ServeCall(shared.PathReplication, repPath)
 
 	go send_heartbeat()

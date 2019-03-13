@@ -290,14 +290,6 @@ The Data Node will store the block if it's address is in the Data Node list in t
   * Name Node
   * Data Node
 
-### In Progress
-
-* Block Report
-  * timeouts in Name Node
-  * send block report from Data Node
-* End-to-end testing
-  * successfully created a file (localhost only)
-
 ### Needs to be started
 
 * AWS Setup
