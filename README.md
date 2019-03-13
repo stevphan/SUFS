@@ -9,7 +9,8 @@
 ## Running CLI
 
 * export tokens for S3 Bucket Access
-* run cli from anywhere
+* run `./CLI <action> ...`
+  * see DesignDoc.pdf to see how to use the CLI
 
 ## Runing the Name Node
 
@@ -17,7 +18,7 @@
 * export GOPATH
 * copy latest project files to ec2
 * go build
-* run `./namenode`
+* run `./NameNode`
 
 ## Running a Data Node
 
@@ -25,7 +26,7 @@
 * export GOPATH
 * copy latest project files to ec2
 * go build
-* run `./datanode <name_node_addr>:8080 <directory_of_block_storage>`
+* run `./DataNode <name_node_ip>:8080 <directory_of_block_storage>`
 
 ## Libraries Used
 
