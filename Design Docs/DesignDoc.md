@@ -209,6 +209,11 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
 
 #### Create File Command
 
+Using the AWS SDK, download the file from s3 to a temp file.
+Get the Data Node list from the Name Node.
+Pull each block individually, base64 encode, and send to Data Node.
+Do this for as many blocks as needed.
+
 ```bash
 /path/to/CLI create-file <name_node_address_and_port> <file_name> <s3_url>
 ```
@@ -224,6 +229,9 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
 
 #### Get File Command
 
+Get the list of blocks and their respective Data Nodes from the Name Node.
+Per block, get from the Data Node and append to the file.
+
 ```bash
 /path/to/CLI get-file <name_node_address_and_port> <file_name> <save_location>
 ```
@@ -238,6 +246,9 @@ Each command can include the `-v` option. This turns verbose mode on. When verbo
   * the location on the local host to save the file
 
 #### List Data Nodes File Command
+
+Get the list of blocks and their respective Data Nodes from the Name Node.
+Output the Data Nodes each block is stored at.
 
 ```bash
 /path/to/CLI list-data-nodes <name_node_address_and_port> <file_name>
